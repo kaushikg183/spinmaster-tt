@@ -1,0 +1,10 @@
+{
+  "name": "SpinMaster TT - Table Tennis Scorer",
+  "short_name": "SpinMaster TT",
+  "description": "Professional Table Tennis Match Scorer with doubles rotation, player profiles, and voice announcer.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#ea580c"
+}
