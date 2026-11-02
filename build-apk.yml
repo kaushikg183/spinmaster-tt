@@ -24,8 +24,6 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      # Capacitor is pinned to v6 (built for Gradle 8.2 / JDK 17). Unpinned installs
-      # pull the newest release, which breaks the Gradle build.
       - name: Install Capacitor CLI
         run: |
           npm init -y
@@ -33,7 +31,6 @@ jobs:
 
       - name: Initialize Capacitor
         run: |
-          # the android/ folder in this repo is only a stub; Capacitor generates the real project
           rm -rf android
           npx cap init "SpinMaster TT" "com.spinmaster.tt" --web-dir "www"
           npx cap add android
