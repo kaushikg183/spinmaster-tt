@@ -297,12 +297,13 @@
 
         <!-- User Profile / Login Button -->
         <button id="btnAccountLogin" class="p-1 sm:px-2.5 sm:py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs flex items-center gap-2 transition" title="User Login & Profile">
-          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 text-white font-bold text-[10px] flex items-center justify-center shadow" id="navUserAvatar">
-            RS
+          <div class="relative">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 text-white font-bold text-[10px] flex items-center justify-center shadow" id="navUserAvatar">G</div>
+            <span id="navSyncDot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-900 bg-slate-500"></span>
           </div>
           <div class="hidden md:block text-left">
-            <span class="block text-[11px] font-bold text-white leading-tight" id="navUserName">Coach Rahul</span>
-            <span class="block text-[9px] text-cyan-400 font-medium" id="navUserRole">Senior Umpire</span>
+            <span class="block text-[11px] font-bold text-white leading-tight" id="navUserName">Guest</span>
+            <span class="block text-[9px] text-cyan-400 font-medium" id="navUserRole">Saved on this phone</span>
           </div>
         </button>
       </div>
@@ -340,64 +341,92 @@
 
       <!-- Players / Teams input -->
       <div id="playerInputContainer" class="space-y-3">
-        <!-- Singles Inputs -->
+        <!-- Singles -->
         <div id="singlesInputFields" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-              <label class="text-xs font-semibold text-cyan-300 uppercase">Player 1 (Left)</label>
-            </div>
-            <input type="text" id="inputP1" value="Alex" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-700/50">
-              <span class="text-[10px] text-slate-400">Or Pick from Club Roster:</span>
-              <select id="selectRosterP1" class="bg-slate-900 text-cyan-300 text-xs border border-slate-700 rounded px-2 py-0.5 focus:outline-none">
-                <option value="">Select registered player...</option>
-              </select>
-            </div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <label class="text-xs font-semibold text-cyan-300 uppercase">Player 1 (Left)</label>
           </div>
+          <div class="slot">
+            <input type="text" id="inputP1" maxlength="20" placeholder="Type a name or pick below" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterP1" class="flex-1 min-w-0 bg-slate-900 text-cyan-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputP1" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
+            </div>
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputP1"></p>
+          </div>
+        </div>
           <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
-              <label class="text-xs font-semibold text-rose-300 uppercase">Player 2 (Right)</label>
-            </div>
-            <input type="text" id="inputP2" value="Marcus" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-400">
-            <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-700/50">
-              <span class="text-[10px] text-slate-400">Or Pick from Club Roster:</span>
-              <select id="selectRosterP2" class="bg-slate-900 text-rose-300 text-xs border border-slate-700 rounded px-2 py-0.5 focus:outline-none">
-                <option value="">Select registered player...</option>
-              </select>
-            </div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+            <label class="text-xs font-semibold text-rose-300 uppercase">Player 2 (Right)</label>
           </div>
+          <div class="slot">
+            <input type="text" id="inputP2" maxlength="20" placeholder="Type a name or pick below" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterP2" class="flex-1 min-w-0 bg-slate-900 text-rose-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputP2" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
+            </div>
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputP2"></p>
+          </div>
+        </div>
         </div>
 
-        <!-- Doubles Inputs (hidden by default) -->
+        <!-- Doubles (hidden by default) -->
         <div id="doublesInputFields" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-              <label class="text-xs font-semibold text-cyan-300 uppercase">Team A (Left Side)</label>
-            </div>
-            <input type="text" id="inputTeamA" value="Team Alpha" placeholder="Team Name" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-            <div class="grid grid-cols-2 gap-1.5">
-              <input type="text" id="inputA1" value="Alex" placeholder="Player 1" maxlength="16" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              <input type="text" id="inputA2" value="Brian" placeholder="Player 2" maxlength="16" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-            </div>
+          <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80 space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <label class="text-xs font-semibold text-cyan-300 uppercase">Team A (Left Side)</label>
           </div>
-          <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
-              <label class="text-xs font-semibold text-rose-300 uppercase">Team B (Right Side)</label>
+          <input type="text" id="inputTeamA" placeholder="Team name (optional)" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500">
+          <div class="slot">
+            <input type="text" id="inputA1" maxlength="20" placeholder="Player 1" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterA1" class="flex-1 min-w-0 bg-slate-900 text-cyan-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputA1" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
             </div>
-            <input type="text" id="inputTeamB" value="Team Phoenix" placeholder="Team Name" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-            <div class="grid grid-cols-2 gap-1.5">
-              <input type="text" id="inputB1" value="Marcus" placeholder="Player 1" maxlength="16" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              <input type="text" id="inputB2" value="David" placeholder="Player 2" maxlength="16" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputA1"></p>
+          </div>
+          <div class="slot">
+            <input type="text" id="inputA2" maxlength="20" placeholder="Player 2" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterA2" class="flex-1 min-w-0 bg-slate-900 text-cyan-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputA2" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
             </div>
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputA2"></p>
           </div>
         </div>
+          <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/80 space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+            <label class="text-xs font-semibold text-rose-300 uppercase">Team B (Right Side)</label>
+          </div>
+          <input type="text" id="inputTeamB" placeholder="Team name (optional)" maxlength="20" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500">
+          <div class="slot">
+            <input type="text" id="inputB1" maxlength="20" placeholder="Player 1" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterB1" class="flex-1 min-w-0 bg-slate-900 text-rose-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputB1" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
+            </div>
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputB1"></p>
+          </div>
+          <div class="slot">
+            <input type="text" id="inputB2" maxlength="20" placeholder="Player 2" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-400">
+            <div class="flex items-center gap-1.5 mt-1.5">
+              <select id="selectRosterB2" class="flex-1 min-w-0 bg-slate-900 text-rose-300 text-xs border border-slate-700 rounded-lg px-2 py-1.5 focus:outline-none"><option value="">Pick a registered player…</option></select>
+              <button type="button" data-newfor="inputB2" class="btn-new-slot shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-slate-200">+ New</button>
+            </div>
+            <p class="slot-info text-[10px] mt-1 min-h-[14px]" data-info="inputB2"></p>
+          </div>
+        </div>
+        </div>
+
+        <p class="text-[10px] text-slate-500 leading-relaxed">Pick registered players so their wins, losses and ELO update after the match. A name you simply type plays as a guest. Tap <b class="text-slate-300">+ New</b> to register someone on the spot.</p>
       </div>
 
-      <!-- Target Score per Game (11, 21, 25, Custom) -->
+            <!-- Target Score per Game (11, 21, 25, Custom) -->
       <div>
         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Points to Win a Game</label>
         <div class="grid grid-cols-4 gap-2" id="targetScoreGroup">
@@ -884,6 +913,13 @@
         </div>
       </div>
 
+      <!-- Career update (filled in after the match) -->
+      <div id="summaryCareer" class="hidden bg-slate-950/70 border border-slate-800 rounded-2xl p-3 space-y-2">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Career updated</p>
+        <div id="summaryCareerRows" class="space-y-1.5"></div>
+        <p id="summaryCareerNote" class="text-[10px] text-slate-500"></p>
+      </div>
+
       <!-- Action Buttons -->
       <div class="space-y-2 pt-2">
         <button type="button" id="btnCopyScorecard" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition">
@@ -906,10 +942,10 @@
 
   <!-- MODAL: ADD NEW PLAYER -->
   <div id="modalAddPlayer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-orange-500/40 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl">
+    <div class="bg-slate-900 border border-orange-500/40 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-lg sm:text-xl font-bold text-white">Register New TT Player</h3>
+          <h3 class="text-lg sm:text-xl font-bold text-white" id="addPlayerTitle">Register new player</h3>
           <p class="text-xs text-slate-400">Add player details, playing grip, and equipment specs.</p>
         </div>
         <button type="button" id="btnCloseAddPlayer" class="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
@@ -952,7 +988,7 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Initial Club Rating</label>
+            <label class="block font-semibold text-slate-300 mb-1">Starting rating (ELO)</label>
             <input type="number" id="inputNewRating" value="1500" min="500" max="3000" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
           </div>
         </div>
@@ -961,6 +997,12 @@
           <label class="block font-semibold text-slate-300 mb-1">Equipment (Blade & Rubber)</label>
           <input type="text" id="inputNewBlade" placeholder="e.g. Butterfly Viscaria / Dignics 05" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
         </div>
+      </div>
+
+      <div class="text-xs">
+        <label class="block font-semibold text-slate-300 mb-1">Club / academy</label>
+        <input type="text" id="inputNewClub" maxlength="40" placeholder="e.g. Lucknow TT Club" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500">
+        <p class="text-[10px] text-slate-500 mt-1.5">The rating then moves automatically after every match you score with this player.</p>
       </div>
 
       <div class="flex items-center gap-2 pt-2">
@@ -976,233 +1018,157 @@
 
   <!-- MODAL: PLAYER PROFILE DOSSIER -->
   <div id="modalPlayerProfile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl relative">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl relative max-h-[92vh] overflow-y-auto">
       <button type="button" id="btnCloseProfile" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
-      <div class="flex items-center gap-3.5 border-b border-slate-800 pb-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg" id="profileInitials">
-          AC
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 class="text-xl font-black text-white" id="profileName">Alex Chen</h3>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30" id="profileRating">1750 ELO</span>
+      <div class="flex items-center gap-3.5 border-b border-slate-800 pb-4 pr-8">
+        <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg" id="profileInitials">AC</div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-xl font-black text-white truncate" id="profileName">Player</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30" id="profileRating">1500 ELO</span>
           </div>
-          <p class="text-xs text-slate-400" id="profileClub">Delhi TT Club · Pro Division</p>
+          <p class="text-xs text-slate-400 truncate" id="profileClub">Club member</p>
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-2 text-center text-xs">
-        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-          <span class="text-[10px] text-slate-400 block uppercase">Dominant Hand</span>
-          <span class="font-bold text-slate-200 mt-0.5 block" id="profileHand">Right</span>
-        </div>
-        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-          <span class="text-[10px] text-slate-400 block uppercase">Grip Style</span>
-          <span class="font-bold text-slate-200 mt-0.5 block" id="profileGrip">Shakehand</span>
-        </div>
-        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-          <span class="text-[10px] text-slate-400 block uppercase">Play Style</span>
-          <span class="font-bold text-slate-200 mt-0.5 block truncate" id="profileStyle">Offensive</span>
-        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Hand</span><span class="font-bold text-slate-200 mt-0.5 block" id="profileHand">Right</span></div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Grip</span><span class="font-bold text-slate-200 mt-0.5 block truncate" id="profileGrip">Shakehand</span></div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Style</span><span class="font-bold text-slate-200 mt-0.5 block truncate" id="profileStyle">All-round</span></div>
       </div>
 
       <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
         <div class="flex items-center justify-between">
-          <span class="text-slate-400">Career Match Record</span>
-          <span class="font-bold text-emerald-400" id="profileRecord">24 Wins · 6 Losses (80%)</span>
+          <span class="text-slate-400">Career record</span>
+          <span class="font-bold text-emerald-400" id="profileRecord">No matches yet</span>
         </div>
-        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-          <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full rounded-full" id="profileWinBar" style="width: 80%"></div>
-        </div>
-        <div class="pt-1 text-[11px] text-slate-400 flex items-center justify-between">
-          <span>Equipment:</span>
-          <span class="font-medium text-slate-300" id="profileBlade">Butterfly Viscaria</span>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full rounded-full transition-all duration-700" id="profileWinBar" style="width: 0%"></div></div>
+        <div class="pt-1 text-[11px] text-slate-400 flex items-center justify-between gap-3">
+          <span>Equipment</span><span class="font-medium text-slate-300 truncate" id="profileBlade">Not set</span>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 pt-2">
-        <button type="button" id="btnPickAsP1" class="py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition">
-          Set as Player 1
-        </button>
-        <button type="button" id="btnPickAsP2" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition">
-          Set as Player 2
-        </button>
+      <div class="grid grid-cols-3 gap-2 text-center" id="profileStats"></div>
+
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recent form</p>
+        <div class="flex items-center gap-1.5 flex-wrap" id="profileForm"></div>
+      </div>
+
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last matches</p>
+        <div class="space-y-1.5" id="profileRecent"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button type="button" id="btnPickAsP1" class="py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition">Use on left side</button>
+        <button type="button" id="btnPickAsP2" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition">Use on right side</button>
+        <button type="button" id="btnEditPlayer" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs transition">Edit profile</button>
+        <button type="button" id="btnDeletePlayer" class="py-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/50 text-rose-300 font-semibold text-xs transition">Delete player</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: USER ACCOUNT & LOGIN -->
+    <!-- MODAL: ACCOUNT & LOGIN -->
   <div id="modalLogin" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-md w-full space-y-4 shadow-2xl relative max-h-[92vh] overflow-y-auto">
       <button type="button" id="btnCloseLogin" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+      <div class="pr-8">
+        <h3 class="text-lg font-black text-white">Your account</h3>
+        <p class="text-xs text-slate-400" id="authSubtitle">You are using the app as a guest.</p>
+      </div>
 
-      <!-- Active User Card (if logged in) -->
-      <div id="activeUserBadgeCard" class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-500 text-white font-bold text-sm flex items-center justify-center shadow" id="modalUserAvatar">
-            RS
-          </div>
-          <div>
+      <!-- SIGNED IN -->
+      <div id="authSignedIn" class="hidden space-y-3">
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-500 text-white font-black text-sm flex items-center justify-center shadow" id="modalUserAvatar">G</div>
+          <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="font-bold text-white text-xs sm:text-sm" id="modalUserName">Rahul Sharma</span>
-              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase" id="modalUserRoleBadge">Umpire</span>
+              <span class="font-bold text-white text-sm truncate" id="modalUserName">Name</span>
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase" id="modalUserRoleBadge">Email</span>
             </div>
-            <p class="text-[11px] text-slate-400 font-mono" id="modalUserEmail">coach.rahul@delhitt.in</p>
+            <p class="text-[11px] text-slate-400 font-mono truncate" id="modalUserEmail"></p>
           </div>
         </div>
-        <button type="button" id="btnSignOutUser" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 text-slate-400 border border-slate-700 text-xs font-semibold transition">
-          Sign Out
-        </button>
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-xs space-y-1.5">
+          <div class="flex items-center justify-between"><span class="text-slate-400">Cloud backup</span><span id="cloudStatusBadge" class="font-bold text-slate-300">-</span></div>
+          <p class="text-[11px] text-slate-500" id="cloudStatusDetail"></p>
+          <p class="text-[11px] text-slate-400" id="cloudCounts"></p>
+          <button type="button" id="btnSyncNow" class="w-full mt-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold transition">Sync now</button>
+        </div>
+        <button type="button" id="btnSignOutUser" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 border border-slate-700 text-xs font-bold transition">Sign out</button>
       </div>
 
-      <!-- Auth Tabs: Sign In / Create Account / Quick Switch -->
-      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-        <button type="button" id="authTabSignIn" class="flex-1 py-1.5 rounded-lg bg-orange-500/20 text-orange-300 font-bold transition text-center">
-          Email Sign In
-        </button>
-        <button type="button" id="authTabSignUp" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition text-center">
-          Create Account
-        </button>
-        <button type="button" id="authTabQuick" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition text-center">
-          Demo Accounts
-        </button>
-      </div>
-
-      <!-- FORM 1: EMAIL SIGN IN -->
-      <div id="authFormSignIn" class="space-y-3 pt-1">
-        <div class="space-y-1">
-          <label class="block text-xs font-semibold text-slate-300">Email Address</label>
-          <div class="relative">
-            <input type="email" id="inputLoginEmail" placeholder="coach.rahul@delhitt.in" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white pl-9 focus:outline-none focus:border-orange-500">
-            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </div>
-        </div>
-
-        <div class="space-y-1">
-          <div class="flex items-center justify-between text-xs">
-            <label class="font-semibold text-slate-300">Password</label>
-            <button type="button" id="btnForgotPassword" class="text-orange-400 hover:text-orange-300 text-[11px]">Forgot?</button>
-          </div>
-          <div class="relative">
-            <input type="password" id="inputLoginPassword" placeholder="••••••••" value="spin123" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white pl-9 pr-9 focus:outline-none focus:border-orange-500">
-            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <button type="button" id="btnToggleLoginPass" class="absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs">👁</button>
-          </div>
-        </div>
-
-        <!-- In-form error message -->
-        <p id="loginErrorMsg" class="hidden text-xs text-rose-400 font-medium bg-rose-500/10 p-2 rounded-lg border border-rose-500/20"></p>
-
-        <button type="button" id="btnSubmitEmailLogin" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2">
-          <span>Sign In with Email</span>
-        </button>
-
-        <!-- Google One-Tap Mock -->
-        <button type="button" id="btnGoogleSignIn" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2s.7 5.5 1.9 7.9l3.7-2.9z"/><path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.9C3.7 20.6 7.5 23.5 12 23.5z"/></svg>
+      <!-- SIGNED OUT -->
+      <div id="authSignedOut" class="hidden space-y-3">
+        <button type="button" id="btnGoogleSignIn" class="w-full py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-sm font-bold flex items-center justify-center gap-2.5 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.7-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.6 14.2c-.2-.7-.4-1.4-.4-2.2s.1-1.5.4-2.2L1.9 6.9C1.1 8.5.7 10.2.7 12s.4 3.5 1.2 5.1l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 5.9-1.1 7.9-2.9l-3.7-2.9c-1 .7-2.4 1.1-4.2 1.1-3 0-5.5-2-6.4-4.8l-3.7 2.9C3.7 20.4 7.5 23 12 23z"/></svg>
           <span>Continue with Google</span>
         </button>
-      </div>
+        <div class="flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-wider"><span class="flex-1 h-px bg-slate-800"></span>or use email<span class="flex-1 h-px bg-slate-800"></span></div>
 
-      <!-- FORM 2: CREATE NEW ACCOUNT (SIGN UP) -->
-      <div id="authFormSignUp" class="hidden space-y-3 pt-1 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Full Name *</label>
-          <input type="text" id="inputSignUpName" placeholder="e.g. Liam Zhang" maxlength="25" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500">
+        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <button type="button" id="authTabSignIn" class="flex-1 py-1.5 rounded-lg bg-orange-500/20 text-orange-300 font-bold transition text-center">Sign in</button>
+          <button type="button" id="authTabSignUp" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition text-center">Create account</button>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Email Address *</label>
-          <input type="email" id="inputSignUpEmail" placeholder="liam@gmail.com" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500">
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Password (min 6 chars) *</label>
-          <input type="password" id="inputSignUpPassword" placeholder="Create a password" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500">
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block font-semibold text-slate-300 mb-1">Role</label>
-            <select id="selectSignUpRole" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-white">
-              <option value="Club Player">Club Player</option>
-              <option value="Umpire / Referee">Umpire / Referee</option>
-              <option value="Club Coach">Club Coach</option>
-              <option value="Club Admin">Club Admin</option>
-            </select>
+        <div class="space-y-2.5">
+          <div id="authNameWrap" class="hidden">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Your name</label>
+            <input type="text" id="inputSignUpName" maxlength="30" autocomplete="name" placeholder="e.g. Kaushik" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Club / Academy</label>
-            <input type="text" id="inputSignUpClub" placeholder="e.g. Delhi TT Club" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Email</label>
+            <input type="email" id="inputLoginEmail" autocomplete="email" placeholder="you@gmail.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <label class="font-semibold text-slate-300">Password</label>
+              <button type="button" id="btnForgotPassword" class="text-orange-400 hover:text-orange-300 text-[11px]">Forgot?</button>
+            </div>
+            <div class="relative">
+              <input type="password" id="inputLoginPassword" autocomplete="current-password" placeholder="At least 6 characters" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 pr-9 text-xs text-white focus:outline-none focus:border-orange-500">
+              <button type="button" id="btnToggleLoginPass" class="absolute right-3 top-2 text-slate-400 hover:text-white text-xs">👁</button>
+            </div>
           </div>
         </div>
 
-        <p id="signUpErrorMsg" class="hidden text-xs text-rose-400 font-medium bg-rose-500/10 p-2 rounded-lg border border-rose-500/20"></p>
+        <p id="loginErrorMsg" class="hidden text-xs text-rose-300 font-medium bg-rose-500/10 p-2 rounded-lg border border-rose-500/20"></p>
 
-        <button type="button" id="btnSubmitEmailSignUp" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-orange-500/20 transition">
-          Create Free Account
-        </button>
+        <button type="button" id="btnSubmitEmailLogin" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg shadow-orange-500/20 transition"><span id="authSubmitText">Sign in</span></button>
+        <p class="text-[10px] text-slate-500 text-center leading-relaxed">Without an account, your players and matches stay on this phone only. With one, they are backed up and follow you to any phone.</p>
       </div>
 
-      <!-- FORM 3: QUICK DEMO ACCOUNTS (Preserves old IDs) -->
-      <div id="authFormQuick" class="hidden space-y-2 pt-1">
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Quick Switch Account</label>
-        <div class="space-y-1.5">
-          <button type="button" id="btnQuickLoginRahul" class="w-full p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 flex items-center justify-between text-xs text-left transition">
-            <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-full bg-cyan-500 text-white font-bold flex items-center justify-center text-xs">RS</span>
-              <div>
-                <span class="block font-bold text-white">Rahul Sharma</span>
-                <span class="text-[10px] text-cyan-400">coach.rahul@delhitt.in · Senior Umpire</span>
-              </div>
-            </div>
-            <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-300 font-medium">Switch</span>
-          </button>
-
-          <button type="button" id="btnQuickLoginAlex" class="w-full p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 flex items-center justify-between text-xs text-left transition">
-            <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs">AC</span>
-              <div>
-                <span class="block font-bold text-white">Alex Chen</span>
-                <span class="text-[10px] text-amber-300">alex.chen@gmail.com · 1750 ELO</span>
-              </div>
-            </div>
-            <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-300 font-medium">Switch</span>
-          </button>
-
-          <button type="button" id="btnQuickLoginGuest" class="w-full p-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 flex items-center justify-between text-xs text-left transition">
-            <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 font-bold flex items-center justify-center text-xs">G</span>
-              <div>
-                <span class="block font-bold text-white">Guest Scorer</span>
-                <span class="text-[10px] text-slate-400">guest@spinmaster.local · Scorekeeper</span>
-              </div>
-            </div>
-            <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-300 font-medium">Switch</span>
-          </button>
-        </div>
-
-        <!-- Custom Name Input (Preserves old IDs) -->
-        <div class="pt-2 border-t border-slate-800 space-y-2 text-xs">
-          <label class="block font-semibold text-slate-300 uppercase tracking-wider">Or Enter Custom Name</label>
-          <div class="flex gap-2">
-            <input type="text" id="inputCustomUserName" placeholder="Your Name" maxlength="20" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs">
-            <button type="button" id="btnSaveCustomUser" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg transition">
-              Save
-            </button>
-          </div>
+      <!-- CLOUD NOT SET UP IN THIS BUILD -->
+      <div id="authUnconfigured" class="hidden space-y-2 text-xs text-slate-400 leading-relaxed">
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-1.5">
+          <p class="font-bold text-slate-200">Cloud login is not switched on in this build.</p>
+          <p>Everything still works: players, matches and stats are saved on this phone. To add Google / email login and cloud backup, follow the one-time setup guide and add your Firebase details.</p>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- MODAL: CONFIRM -->
+  <div id="modalConfirm" class="hidden fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl">
+      <div class="space-y-1.5">
+        <h3 class="text-base font-black text-white" id="confirmTitle">Are you sure?</h3>
+        <p class="text-xs text-slate-400 leading-relaxed" id="confirmText"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" id="btnConfirmCancel" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Cancel</button>
+        <button type="button" id="btnConfirmOk" class="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow transition">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- TOAST NOTIFICATION -->
   <div id="toastNotification" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-xl border border-slate-700 pointer-events-none transition opacity-0 transform translate-y-2 duration-200">
     Notification
   </div>
@@ -1210,6 +1176,10 @@
   <!-- CONFETTI CANVAS -->
   <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
 
+
+  <!-- CLOUD LOGIN (optional): config first, then the Firebase bundle -->
+  <script src="firebase-config.js"></script>
+  <script src="fb.js"></script>
 
   <!-- MOTION HELPERS -->
   <script>
@@ -1444,105 +1414,15 @@
       timeoutInterval: null,
 
       // User & Navigation State
-      currentUser: {
-        name: "Rahul Sharma",
-        email: "coach.rahul@delhitt.in",
-        role: "Senior Umpire",
-        club: "Delhi TT Club",
-        avatar: "RS"
-      },
-      registeredAccounts: [
-        { email: "coach.rahul@delhitt.in", password: "spin123", name: "Rahul Sharma", role: "Senior Umpire", club: "Delhi TT Club", avatar: "RS" },
-        { email: "alex.chen@gmail.com", password: "spin123", name: "Alex Chen", role: "Club Player", club: "Delhi TT Club", avatar: "AC" },
-        { email: "guest@spinmaster.local", password: "spin123", name: "Guest Scorer", role: "Scorekeeper", club: "Club Scorer", avatar: "G" }
-      ],
+      currentUser: null,
       currentTab: "match",
       liveRoomCode: "TT-7842",
       viewerCount: 34,
       isChromaMode: false,
       selectedProfilePlayerId: null,
 
-      // Registered Players Roster
-      playersList: [
-        {
-          id: "p_alex",
-          name: "Alex Chen",
-          hand: "Right-handed",
-          grip: "Shakehand",
-          style: "Offensive Looper",
-          rating: 1750,
-          wins: 24,
-          losses: 6,
-          blade: "Butterfly Viscaria",
-          rubber: "Dignics 05 / Tenergy 05",
-          club: "Delhi TT Club"
-        },
-        {
-          id: "p_marcus",
-          name: "Marcus Miller",
-          hand: "Right-handed",
-          grip: "Chinese Penhold",
-          style: "All-round Attacker",
-          rating: 1680,
-          wins: 19,
-          losses: 9,
-          blade: "Stiga Clipper Wood",
-          rubber: "DHS Hurricane 3 Neo",
-          club: "Delhi TT Club"
-        },
-        {
-          id: "p_brian",
-          name: "Brian Wong",
-          hand: "Left-handed",
-          grip: "Shakehand",
-          style: "Counter-driver",
-          rating: 1620,
-          wins: 15,
-          losses: 8,
-          blade: "Timo Boll ALC",
-          rubber: "Rozena / Tenergy 64",
-          club: "Metro PingPong"
-        },
-        {
-          id: "p_david",
-          name: "David Kim",
-          hand: "Right-handed",
-          grip: "Shakehand",
-          style: "Modern Defender",
-          rating: 1590,
-          wins: 12,
-          losses: 11,
-          blade: "Matsushita Pro Special",
-          rubber: "Feint Long II / Tackifire",
-          club: "Spin Academy"
-        },
-        {
-          id: "p_priya",
-          name: "Priya Sharma",
-          hand: "Right-handed",
-          grip: "Shakehand",
-          style: "Offensive Looper",
-          rating: 1710,
-          wins: 22,
-          losses: 5,
-          blade: "DHS Hurricane Long 5",
-          rubber: "Hurricane 8 / Tenergy 05",
-          club: "Delhi TT Club"
-        },
-        {
-          id: "p_sarah",
-          name: "Sarah Jenkins",
-          hand: "Left-handed",
-          grip: "Japanese Penhold",
-          style: "Fast Attacker",
-          rating: 1640,
-          wins: 16,
-          losses: 7,
-          blade: "Nittaku Acoustic",
-          rubber: "Fastarc G-1",
-          club: "Olympic Center"
-        }
-      ]
+      // Registered players live in the SM data module (see below)
+      matchHistory: []
     };
 
     // --- AUDIO & SYNTHESIZER ---
@@ -2463,299 +2343,14 @@
     // --- EVENT LISTENERS & SETUP WIRING ---
     document.addEventListener('DOMContentLoaded', () => {
 
-      loadPlayersFromStorage();
-      populateRosterDropdowns();
-      renderPlayersRoster();
+      smInit();
 
       // Tab navigation
       document.getElementById('navTabMatch').addEventListener('click', () => switchTab('match'));
       document.getElementById('navTabPlayers').addEventListener('click', () => switchTab('players'));
       document.getElementById('navTabLive').addEventListener('click', () => switchTab('live'));
 
-      // Quick roster picker selects
-      document.getElementById('selectRosterP1').addEventListener('change', (e) => {
-        if (e.target.value) {
-          document.getElementById('inputP1').value = e.target.value;
-        }
-      });
-      document.getElementById('selectRosterP2').addEventListener('change', (e) => {
-        if (e.target.value) {
-          document.getElementById('inputP2').value = e.target.value;
-        }
-      });
-
-      // Player directory search & filters
-      document.getElementById('inputPlayerSearch').addEventListener('input', (e) => {
-        renderPlayersRoster('all', e.target.value.trim());
-      });
-
-      document.querySelectorAll('.filter-chip').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('.filter-chip').forEach(c => {
-            c.className = "filter-chip px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-medium border border-slate-700";
-          });
-          e.currentTarget.className = "filter-chip px-3 py-1.5 rounded-lg bg-orange-500/20 text-orange-300 font-bold border border-orange-500/30";
-          renderPlayersRoster(e.currentTarget.dataset.filter, document.getElementById('inputPlayerSearch').value.trim());
-        });
-      });
-
-      // Add Player Modal
-      document.getElementById('btnOpenAddPlayer').addEventListener('click', () => {
-        document.getElementById('modalAddPlayer').classList.remove('hidden');
-      });
-      document.getElementById('btnCloseAddPlayer').addEventListener('click', () => {
-        document.getElementById('modalAddPlayer').classList.add('hidden');
-      });
-      document.getElementById('btnCancelAddPlayer').addEventListener('click', () => {
-        document.getElementById('modalAddPlayer').classList.add('hidden');
-      });
-      document.getElementById('btnSaveNewPlayer').addEventListener('click', () => {
-        const name = document.getElementById('inputNewPlayerName').value.trim();
-        if (!name) {
-          showToast("Please enter a player name");
-          return;
-        }
-        const hand = document.getElementById('selectNewHand').value;
-        const grip = document.getElementById('selectNewGrip').value;
-        const style = document.getElementById('selectNewStyle').value;
-        const rating = parseInt(document.getElementById('inputNewRating').value, 10) || 1500;
-        const blade = document.getElementById('inputNewBlade').value.trim() || 'ITTF Tournament Blade';
-
-        const newP = {
-          id: 'p_' + Date.now(),
-          name: name,
-          hand: hand,
-          grip: grip,
-          style: style,
-          rating: rating,
-          wins: 0,
-          losses: 0,
-          blade: blade,
-          rubber: 'ITTF Approved',
-          club: 'Delhi TT Club'
-        };
-
-        state.playersList.unshift(newP);
-        savePlayersToStorage();
-        populateRosterDropdowns();
-        renderPlayersRoster();
-
-        document.getElementById('modalAddPlayer').classList.add('hidden');
-        document.getElementById('inputNewPlayerName').value = '';
-        showToast(`${name} added to club roster!`);
-      });
-
-      // Player Profile Modal actions
-      document.getElementById('btnCloseProfile').addEventListener('click', () => {
-        document.getElementById('modalPlayerProfile').classList.add('hidden');
-      });
-      document.getElementById('btnPickAsP1').addEventListener('click', () => {
-        const p = state.playersList.find(i => i.id === state.selectedProfilePlayerId);
-        if (p) {
-          document.getElementById('inputP1').value = p.name;
-          document.getElementById('modalPlayerProfile').classList.add('hidden');
-          switchTab('match');
-          showToast(`${p.name} set as Player 1!`);
-        }
-      });
-      document.getElementById('btnPickAsP2').addEventListener('click', () => {
-        const p = state.playersList.find(i => i.id === state.selectedProfilePlayerId);
-        if (p) {
-          document.getElementById('inputP2').value = p.name;
-          document.getElementById('modalPlayerProfile').classList.add('hidden');
-          switchTab('match');
-          showToast(`${p.name} set as Player 2!`);
-        }
-      });
-
-      // Account & Login Modal
-      document.getElementById('btnAccountLogin').addEventListener('click', () => {
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.remove('hidden');
-      });
-      document.getElementById('btnCloseLogin').addEventListener('click', () => {
-        document.getElementById('modalLogin').classList.add('hidden');
-      });
-
-      // Auth tabs
-      document.getElementById('authTabSignIn').addEventListener('click', () => switchAuthTab('signin'));
-      document.getElementById('authTabSignUp').addEventListener('click', () => switchAuthTab('signup'));
-      document.getElementById('authTabQuick').addEventListener('click', () => switchAuthTab('quick'));
-
-      // Show/Hide password toggle
-      document.getElementById('btnToggleLoginPass').addEventListener('click', () => {
-        const passInput = document.getElementById('inputLoginPassword');
-        if (passInput.type === 'password') {
-          passInput.type = 'text';
-          document.getElementById('btnToggleLoginPass').textContent = '🔒';
-        } else {
-          passInput.type = 'password';
-          document.getElementById('btnToggleLoginPass').textContent = '👁';
-        }
-      });
-
-      document.getElementById('btnForgotPassword').addEventListener('click', () => {
-        showToast("Demo password is 'spin123' for all pre-set emails");
-      });
-
-      // Submit Email Sign In
-      document.getElementById('btnSubmitEmailLogin').addEventListener('click', () => {
-        const email = document.getElementById('inputLoginEmail').value.trim().toLowerCase();
-        const password = document.getElementById('inputLoginPassword').value;
-        const err = document.getElementById('loginErrorMsg');
-        err.classList.add('hidden');
-
-        if (!email || !password) {
-          err.textContent = "Please enter both email and password";
-          err.classList.remove('hidden');
-          return;
-        }
-
-        const account = state.registeredAccounts.find(a => a.email.toLowerCase() === email);
-        if (!account) {
-          err.textContent = "No account found with this email. Try 'coach.rahul@delhitt.in' or Create Account.";
-          err.classList.remove('hidden');
-          return;
-        }
-        if (account.password !== password) {
-          err.textContent = "Incorrect password. (Hint: demo password is 'spin123')";
-          err.classList.remove('hidden');
-          return;
-        }
-
-        // Login success
-        state.currentUser = {
-          name: account.name,
-          email: account.email,
-          role: account.role,
-          club: account.club,
-          avatar: account.avatar
-        };
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast(`Signed in successfully as ${account.name}!`);
-      });
-
-      // Google Sign In Mock
-      document.getElementById('btnGoogleSignIn').addEventListener('click', () => {
-        state.currentUser = {
-          name: "Alex Chen",
-          email: "alex.chen@gmail.com",
-          role: "Club Player",
-          club: "Delhi TT Club",
-          avatar: "AC"
-        };
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast("Signed in with Google (alex.chen@gmail.com)!");
-      });
-
-      // Submit Sign Up
-      document.getElementById('btnSubmitEmailSignUp').addEventListener('click', () => {
-        const name = document.getElementById('inputSignUpName').value.trim();
-        const email = document.getElementById('inputSignUpEmail').value.trim().toLowerCase();
-        const password = document.getElementById('inputSignUpPassword').value;
-        const role = document.getElementById('selectSignUpRole').value;
-        const club = document.getElementById('inputSignUpClub').value.trim() || 'Delhi TT Club';
-        const err = document.getElementById('signUpErrorMsg');
-        err.classList.add('hidden');
-
-        if (!name || !email || !password) {
-          err.textContent = "Please fill in name, email, and password.";
-          err.classList.remove('hidden');
-          return;
-        }
-        if (password.length < 6) {
-          err.textContent = "Password must be at least 6 characters.";
-          err.classList.remove('hidden');
-          return;
-        }
-        if (state.registeredAccounts.some(a => a.email.toLowerCase() === email)) {
-          err.textContent = "An account with this email already exists. Try signing in.";
-          err.classList.remove('hidden');
-          return;
-        }
-
-        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "TT";
-        const newAcc = {
-          email: email,
-          password: password,
-          name: name,
-          role: role,
-          club: club,
-          avatar: initials
-        };
-
-        state.registeredAccounts.push(newAcc);
-        state.currentUser = newAcc;
-
-        // If player, also register in roster
-        if (role.toLowerCase().includes('player')) {
-          state.playersList.unshift({
-            id: 'p_' + Date.now(),
-            name: name,
-            hand: 'Right-handed',
-            grip: 'Shakehand',
-            style: 'Offensive Looper',
-            rating: 1500,
-            wins: 0,
-            losses: 0,
-            blade: 'ITTF Tournament Blade',
-            rubber: 'ITTF Approved',
-            club: club
-          });
-          savePlayersToStorage();
-          populateRosterDropdowns();
-          renderPlayersRoster();
-        }
-
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast(`Account created! Welcome, ${name}!`);
-      });
-
-      // Sign Out
-      document.getElementById('btnSignOutUser').addEventListener('click', () => {
-        state.currentUser = {
-          name: "Guest Scorer",
-          email: "guest@spinmaster.local",
-          role: "Scorekeeper",
-          club: "Guest",
-          avatar: "G"
-        };
-        updateActiveUserDisplay();
-        showToast("Signed out. Switched to Guest mode.");
-      });
-
-      // Quick Profile Switch Buttons (Preserves old IDs)
-      document.getElementById('btnQuickLoginRahul').addEventListener('click', () => {
-        state.currentUser = { name: "Rahul Sharma", email: "coach.rahul@delhitt.in", role: "Senior Umpire", club: "Delhi TT Club", avatar: "RS" };
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast("Switched to Coach Rahul");
-      });
-      document.getElementById('btnQuickLoginAlex').addEventListener('click', () => {
-        state.currentUser = { name: "Alex Chen", email: "alex.chen@gmail.com", role: "Club Player", club: "Delhi TT Club", avatar: "AC" };
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast("Switched to Alex Chen");
-      });
-      document.getElementById('btnQuickLoginGuest').addEventListener('click', () => {
-        state.currentUser = { name: "Guest Scorer", email: "guest@spinmaster.local", role: "Scorekeeper", club: "Club Scorer", avatar: "G" };
-        updateActiveUserDisplay();
-        document.getElementById('modalLogin').classList.add('hidden');
-        showToast("Switched to Guest Scorer");
-      });
-      document.getElementById('btnSaveCustomUser').addEventListener('click', () => {
-        const name = document.getElementById('inputCustomUserName').value.trim();
-        if (name) {
-          const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-          state.currentUser = { name: name, email: name.toLowerCase().replace(/\s+/g, '.') + '@spinmaster.local', role: "Scorekeeper", club: "Club", avatar: initials };
-          updateActiveUserDisplay();
-          document.getElementById('modalLogin').classList.add('hidden');
-          showToast(`Welcome, ${name}!`);
-        }
-      });
+      // (roster, profiles and account handlers live in the SM data module)
 
       // (live link / viewers are handled by the LIVE SYNC module below)
 
@@ -2836,6 +2431,7 @@
 
       // Start Match Button
       document.getElementById('btnStartMatch').addEventListener('click', () => {
+        if (!smBeforeStart()) return;
         // Collect names
         state.p1Name = document.getElementById('inputP1').value.trim() || "Player 1";
         state.p2Name = document.getElementById('inputP2').value.trim() || "Player 2";
@@ -2868,6 +2464,7 @@
         resetCardOrder();
         _fx.prev.t1 = null;
         _fx.pillCount = 0;
+        smAfterStart();
 
         // Switch Views
         document.getElementById('viewSetup').classList.add('hidden');
@@ -2954,6 +2551,776 @@
       });
 
     });
+  </script>
+
+  <!-- SM DATA: players, career stats, accounts, cloud sync -->
+  <script>
+(function () {
+  'use strict';
+
+  // =====================================================================
+  //  DATA LAYER  (players + match history, saved on the phone, synced to the account)
+  // =====================================================================
+  const KEYP = 'spinmaster_d_';
+  const OLD_KEY = 'spinmaster_players';
+  const DEMO_IDS = ['p_alex', 'p_marcus', 'p_brian', 'p_david', 'p_priya', 'p_sarah'];
+  const K_FACTOR = 32;
+  const MAX_MATCHES = 500;
+
+  const g = (id) => document.getElementById(id);
+  const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; };
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const str = (x, n) => String(x == null ? '' : x).slice(0, n);
+  const num = (x, lo, hi, d) => { x = +x; if (!isFinite(x)) return d; return Math.min(hi, Math.max(lo, x)); };
+  const toast = (m) => { try { showToast(m); } catch (e) {} };
+
+  const D = { ns: 'guest', players: [], deleted: [], matches: [] };
+  Object.defineProperty(state, 'playersList', { get: () => D.players, configurable: true });
+
+  const key = () => KEYP + D.ns;
+
+  function baseOf(p) {
+    return { id: p.id, name: p.name, hand: p.hand, grip: p.grip, style: p.style, club: p.club || '', blade: p.blade || '', rubber: p.rubber || '',
+      r0: p.r0, w0: p.w0 || 0, l0: p.l0 || 0, c: p.c || 0, u: p.u || 0 };
+  }
+  function stripM(m) {
+    return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, w: m.w, gw: m.gw, pt: m.pt };
+  }
+  function payload() {
+    return { v: 2, players: D.players.map(baseOf), deleted: D.deleted.slice(), matches: D.matches.map(stripM) };
+  }
+
+  function sanitize(d) {
+    d = d && typeof d === 'object' ? d : {};
+    const players = (Array.isArray(d.players) ? d.players : [])
+      .filter((p) => p && typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim())
+      .map((p) => ({
+        id: str(p.id, 40), name: str(p.name, 30).trim(), hand: str(p.hand, 20) || 'Right-handed', grip: str(p.grip, 24) || 'Shakehand',
+        style: str(p.style, 30) || 'All-round', club: str(p.club, 40), blade: str(p.blade, 60), rubber: str(p.rubber, 60),
+        r0: num(p.r0, 100, 4000, 1500), w0: num(p.w0, 0, 9999, 0), l0: num(p.l0, 0, 9999, 0), c: +p.c || 0, u: +p.u || 0
+      }));
+    const deleted = (Array.isArray(d.deleted) ? d.deleted : [])
+      .filter((x) => x && typeof x.id === 'string').map((x) => ({ id: str(x.id, 40), t: +x.t || 0 }));
+    const side = (t) => ({
+      n: str(t && t.n, 40),
+      ids: (t && Array.isArray(t.ids) ? t.ids : []).slice(0, 2).map((x) => str(x, 40)),
+      names: (t && Array.isArray(t.names) ? t.names : []).slice(0, 2).map((x) => str(x, 30))
+    });
+    const matches = (Array.isArray(d.matches) ? d.matches : [])
+      .filter((m) => m && typeof m.id === 'string' && m.a && m.b && (m.w === 1 || m.w === 2))
+      .map((m) => ({
+        id: str(m.id, 40), ts: +m.ts || 0, dbl: m.dbl ? 1 : 0, tg: num(m.tg, 1, 99, 11), bo: num(m.bo, 1, 9, 3),
+        a: side(m.a), b: side(m.b), g: str(m.g, 200), w: m.w,
+        gw: [num(m.gw && m.gw[0], 0, 9, 0), num(m.gw && m.gw[1], 0, 9, 0)],
+        pt: [num(m.pt && m.pt[0], 0, 9999, 0), num(m.pt && m.pt[1], 0, 9999, 0)]
+      }));
+    return { players, deleted, matches };
+  }
+
+  // union merge: newest edit of a player wins, deletions are remembered, matches are only ever added
+  function mergeData(L, R) {
+    L = sanitize(L); R = sanitize(R);
+    const tomb = new Map();
+    L.deleted.concat(R.deleted).forEach((d) => { if (d.t > (tomb.get(d.id) || 0)) tomb.set(d.id, d.t); });
+    const pm = new Map();
+    L.players.concat(R.players).forEach((p) => { const e = pm.get(p.id); if (!e || p.u > e.u) pm.set(p.id, p); });
+    const players = [];
+    pm.forEach((p, id) => { const t = tomb.get(id); if (t && t >= p.u) return; players.push(p); });
+    players.sort((a, b) => (a.id < b.id ? -1 : 1));
+    const deleted = Array.from(tomb, ([id, t]) => ({ id, t })).sort((a, b) => (a.id < b.id ? -1 : 1)).slice(-300);
+    const mm = new Map();
+    L.matches.concat(R.matches).forEach((m) => { if (!mm.has(m.id)) mm.set(m.id, m); });
+    const matches = Array.from(mm.values()).sort((a, b) => a.ts - b.ts || (a.id < b.id ? -1 : 1)).slice(-MAX_MATCHES);
+    return { v: 2, players, deleted, matches };
+  }
+
+  function migrateV1() {
+    try {
+      const old = JSON.parse(ls(OLD_KEY) || 'null');
+      if (!Array.isArray(old)) return null;
+      const keep = old.filter((p) => p && p.id && !DEMO_IDS.includes(p.id));
+      const now = Date.now();
+      return { players: keep.map((p) => ({ id: p.id, name: p.name, hand: p.hand, grip: p.grip, style: p.style, club: p.club, blade: p.blade, rubber: p.rubber,
+        r0: +p.rating || 1500, w0: +p.wins || 0, l0: +p.losses || 0, c: now, u: now })), deleted: [], matches: [] };
+    } catch (e) { return null; }
+  }
+
+  function readNs(ns) {
+    let data = null;
+    try { data = JSON.parse(ls(KEYP + ns) || 'null'); } catch (e) {}
+    if (!data && ns === 'guest') data = migrateV1();
+    return sanitize(data);
+  }
+  function setData(d) { D.players = d.players; D.deleted = d.deleted; D.matches = d.matches; recompute(); }
+  function loadNs(ns) { D.ns = ns; setData(readNs(ns)); }
+  function saveLocal() { ls(key(), JSON.stringify(payload())); }
+
+  // ---- stats + ELO are always recalculated from the match list, so every phone gets the same numbers
+  function recompute() {
+    const by = new Map();
+    D.players.forEach((p) => {
+      p.rating = p.r0; p.wins = p.w0; p.losses = p.l0; p.mp = 0; p.gw = 0; p.gl = 0; p.pw = 0; p.pl = 0;
+      p.streak = 0; p.best = 0; p.form = []; p.last = 0; by.set(p.id, p);
+    });
+    D.matches = D.matches.slice().sort((x, y) => x.ts - y.ts || (x.id < y.id ? -1 : 1));
+    D.matches.forEach((m) => {
+      const A = m.a.ids.map((i) => by.get(i)).filter(Boolean), B = m.b.ids.map((i) => by.get(i)).filter(Boolean);
+      m._rb = {}; m._ra = {}; m._d = 0; m._elo = false;
+      A.concat(B).forEach((p) => { m._rb[p.id] = p.rating; });
+      if (A.length && B.length) {
+        const avg = (l) => l.reduce((s, p) => s + p.rating, 0) / l.length;
+        const ea = 1 / (1 + Math.pow(10, (avg(B) - avg(A)) / 400));
+        const d = Math.round(K_FACTOR * ((m.w === 1 ? 1 : 0) - ea));
+        A.forEach((p) => { p.rating = Math.max(100, p.rating + d); });
+        B.forEach((p) => { p.rating = Math.max(100, p.rating - d); });
+        m._d = d; m._elo = true;
+      }
+      A.concat(B).forEach((p) => { m._ra[p.id] = p.rating; });
+      [[A, 1], [B, 2]].forEach(([team, side]) => {
+        team.forEach((p) => {
+          const won = m.w === side;
+          p.mp++; if (won) p.wins++; else p.losses++;
+          p.gw += m.gw[side - 1]; p.gl += m.gw[2 - side];
+          p.pw += m.pt[side - 1]; p.pl += m.pt[2 - side];
+          p.streak = won ? (p.streak > 0 ? p.streak + 1 : 1) : (p.streak < 0 ? p.streak - 1 : -1);
+          p.best = Math.max(p.best, p.streak);
+          p.form.push(won ? 'W' : 'L'); p.last = m.ts;
+        });
+      });
+    });
+    D.players.forEach((p) => { p.form = p.form.slice(-10); });
+  }
+
+  function commit() {
+    recompute(); saveLocal(); refreshAllRosterUI(); Cloud.schedule();
+  }
+
+  const newId = (pfx) => pfx + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const nameTaken = (name, exceptId) => { const n = name.trim().toLowerCase(); return D.players.some((p) => p.id !== exceptId && p.name.trim().toLowerCase() === n); };
+  const initialsOf = (n) => (String(n).trim().split(/\s+/).map((w) => w[0] || '').join('').substring(0, 2).toUpperCase() || '?');
+
+  // =====================================================================
+  //  CONFIRM DIALOG
+  // =====================================================================
+  function confirmDialog(o) {
+    g('confirmTitle').textContent = o.title; g('confirmText').textContent = o.text;
+    const ok = g('btnConfirmOk'), cancel = g('btnConfirmCancel'), modal = g('modalConfirm');
+    ok.textContent = o.ok || 'Confirm'; cancel.textContent = o.cancel || 'Cancel';
+    ok.className = 'flex-1 py-2.5 rounded-xl text-white font-bold text-xs shadow transition ' + (o.danger ? 'bg-rose-600 hover:bg-rose-500' : 'bg-orange-600 hover:bg-orange-500');
+    modal.classList.remove('hidden');
+    const done = (fn) => { modal.classList.add('hidden'); ok.onclick = null; cancel.onclick = null; if (fn) fn(); };
+    ok.onclick = () => done(o.onOk); cancel.onclick = () => done(o.onCancel);
+  }
+
+  // =====================================================================
+  //  ROSTER UI
+  // =====================================================================
+  let rosterFilter = 'all', rosterQuery = '';
+
+  window.renderPlayersRoster = function (filter, query) {
+    if (typeof filter === 'string') rosterFilter = filter;
+    if (typeof query === 'string') rosterQuery = query;
+    const grid = g('playersRosterGrid'); if (!grid) return;
+    let list = D.players.slice().sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+    if (rosterQuery) {
+      const q = rosterQuery.toLowerCase();
+      list = list.filter((p) => p.name.toLowerCase().includes(q) || p.grip.toLowerCase().includes(q) || p.style.toLowerCase().includes(q) || (p.club || '').toLowerCase().includes(q));
+    }
+    if (rosterFilter === 'shakehand') list = list.filter((p) => p.grip.toLowerCase().includes('shakehand'));
+    else if (rosterFilter === 'penhold') list = list.filter((p) => p.grip.toLowerCase().includes('penhold'));
+    else if (rosterFilter === 'offensive') list = list.filter((p) => /offensive|attacker/i.test(p.style));
+
+    g('totalPlayersBadge').textContent = `${D.players.length} Player${D.players.length === 1 ? '' : 's'} Registered`;
+    grid.textContent = '';
+
+    if (!list.length) {
+      const empty = document.createElement('div');
+      empty.className = 'col-span-full bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-8 text-center space-y-3';
+      empty.innerHTML = D.players.length
+        ? '<p class="text-sm font-bold text-white">No players match your search</p><p class="text-xs text-slate-400">Try a different name or filter.</p>'
+        : '<p class="text-3xl">🏓</p><p class="text-sm font-bold text-white">No players yet</p><p class="text-xs text-slate-400">Add your club members once. Their wins, losses and ELO then update automatically after every match.</p><button type="button" data-act="add" class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold">Add your first player</button>';
+      grid.appendChild(empty);
+      return;
+    }
+
+    list.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.style.setProperty('--i', Math.min(idx, 9));
+      card.className = 'bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 shadow-lg flex flex-col justify-between space-y-3 transition group';
+      const total = p.wins + p.losses, rate = total ? Math.round((p.wins / total) * 100) : 0;
+      const dots = p.form.slice(-5).map((r) => `<span class="w-2 h-2 rounded-full ${r === 'W' ? 'bg-emerald-400' : 'bg-rose-400'}"></span>`).join('');
+      const streak = p.streak >= 2 ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">W${p.streak}</span>` : (p.streak <= -2 ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">L${-p.streak}</span>` : '');
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white font-black text-sm flex items-center justify-center shadow">${esc(initialsOf(p.name))}</div>
+            <div class="min-w-0">
+              <h4 class="font-bold text-white text-sm truncate">${esc(p.name)}</h4>
+              <p class="text-[11px] text-slate-400 truncate">${esc(p.club || 'Club member')}</p>
+            </div>
+          </div>
+          <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">${p.rating} ELO</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${esc(p.hand)}</span>
+          <span class="px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-800/40">${esc(p.grip)}</span>
+          <span class="px-2 py-0.5 rounded bg-purple-950/60 text-purple-300 border border-purple-800/40">${esc(p.style)}</span>
+        </div>
+        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs gap-2">
+          <span class="text-slate-400">Record</span>
+          <span class="flex items-center gap-2">
+            <span class="flex items-center gap-0.5">${dots}</span>${streak}
+            <span class="font-bold text-emerald-400">${p.wins}W - ${p.losses}L${total ? ` (${rate}%)` : ''}</span>
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" data-act="profile" data-id="${esc(p.id)}" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition">Profile</button>
+          <button type="button" data-act="use" data-id="${esc(p.id)}" class="py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow transition">Use in match</button>
+        </div>`;
+      grid.appendChild(card);
+    });
+  };
+
+  window.populateRosterDropdowns = function () { refreshSlotSelects(); };
+
+  // ---- profile dossier
+  let profileId = null;
+  window.openPlayerProfile = function (id) {
+    const p = D.players.find((x) => x.id === id); if (!p) return;
+    profileId = id; state.selectedProfilePlayerId = id;
+    const total = p.wins + p.losses, rate = total ? Math.round((p.wins / total) * 100) : 0;
+    g('profileInitials').textContent = initialsOf(p.name);
+    g('profileName').textContent = p.name;
+    g('profileRating').textContent = `${p.rating} ELO`;
+    g('profileClub').textContent = p.club || 'Club member';
+    g('profileHand').textContent = p.hand.replace('-handed', '');
+    g('profileGrip').textContent = p.grip;
+    g('profileStyle').textContent = p.style;
+    g('profileRecord').textContent = total ? `${p.wins} Wins · ${p.losses} Losses (${rate}%)` : 'No matches yet';
+    g('profileWinBar').style.width = rate + '%';
+    g('profileBlade').textContent = p.blade || 'Not set';
+
+    const streakTxt = p.streak > 0 ? 'W' + p.streak : (p.streak < 0 ? 'L' + (-p.streak) : '-');
+    const cells = [['Matches', total], ['Win rate', total ? rate + '%' : '-'], ['Streak', streakTxt], ['Games', `${p.gw}-${p.gl}`], ['Points', `${p.pw}-${p.pl}`], ['Best run', p.best > 0 ? 'W' + p.best : '-']];
+    g('profileStats').innerHTML = cells.map(([k, v]) => `<div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 block uppercase">${k}</span><span class="font-bold text-slate-100 text-sm">${esc(v)}</span></div>`).join('');
+
+    g('profileForm').innerHTML = p.form.length
+      ? p.form.slice(-8).map((r) => `<span class="w-6 h-6 rounded-md text-[10px] font-black flex items-center justify-center ${r === 'W' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">${r}</span>`).join('')
+      : '<span class="text-[11px] text-slate-500">Play a match with this player to see form.</span>';
+
+    const mine = D.matches.filter((m) => m.a.ids.includes(id) || m.b.ids.includes(id)).slice(-5).reverse();
+    g('profileRecent').innerHTML = mine.length ? mine.map((m) => {
+      const side = m.a.ids.includes(id) ? 1 : 2, opp = side === 1 ? m.b : m.a;
+      const oppName = (opp.names.filter(Boolean).join(' & ')) || opp.n || 'Opponent';
+      const won = m.w === side, gwMine = m.gw[side - 1], gwOpp = m.gw[2 - side];
+      const date = new Date(m.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      const delta = m._elo && m._rb[id] != null ? (m._ra[id] - m._rb[id]) : null;
+      const dtxt = delta == null ? '' : `<span class="${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">${delta >= 0 ? '+' : ''}${delta}</span>`;
+      return `<div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px]">
+        <span class="w-5 h-5 rounded text-[10px] font-black flex items-center justify-center ${won ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${won ? 'W' : 'L'}</span>
+        <span class="flex-1 min-w-0 truncate text-slate-200">vs ${esc(oppName)}</span>
+        <span class="font-mono text-slate-300">${gwMine}-${gwOpp}</span>${dtxt}
+        <span class="text-slate-500 w-12 text-right">${esc(date)}</span></div>`;
+    }).join('') : '<p class="text-[11px] text-slate-500">No matches recorded yet.</p>';
+
+    g('modalPlayerProfile').classList.remove('hidden');
+  };
+
+  // ---- add / edit player
+  let editingId = null, linkAfterSave = null;
+  function openPlayerModal(o) {
+    o = o || {};
+    editingId = o.id || null; linkAfterSave = o.linkInput || null;
+    const p = editingId ? D.players.find((x) => x.id === editingId) : null;
+    g('addPlayerTitle').textContent = p ? 'Edit player' : 'Register new player';
+    g('btnSaveNewPlayer').textContent = p ? 'Save changes' : 'Save player';
+    g('inputNewPlayerName').value = p ? p.name : (o.prefill || '');
+    g('selectNewHand').value = p ? p.hand : 'Right-handed';
+    g('selectNewGrip').value = p ? p.grip : 'Shakehand';
+    const st = g('selectNewStyle');
+    const style = p ? p.style : 'Offensive Looper';
+    if (![...st.options].some((x) => x.value === style)) { const o2 = document.createElement('option'); o2.value = style; o2.textContent = style; st.appendChild(o2); }
+    st.value = style;
+    g('inputNewRating').value = p ? p.r0 : 1500;
+    g('inputNewBlade').value = p ? p.blade : '';
+    g('inputNewClub').value = p ? p.club : (ls('sm_last_club') || '');
+    g('modalAddPlayer').classList.remove('hidden');
+    setTimeout(() => g('inputNewPlayerName').focus(), 60);
+  }
+
+  function savePlayerFromModal() {
+    const name = g('inputNewPlayerName').value.trim();
+    if (!name) { toast('Please enter a player name'); return; }
+    if (nameTaken(name, editingId)) { toast(`A player named "${name}" already exists`); return; }
+    const hand = g('selectNewHand').value, grip = g('selectNewGrip').value, style = g('selectNewStyle').value;
+    const r0 = num(g('inputNewRating').value, 100, 4000, 1500);
+    const blade = g('inputNewBlade').value.trim(), club = g('inputNewClub').value.trim();
+    if (club) ls('sm_last_club', club);
+    const now = Date.now();
+    let player;
+    if (editingId) {
+      player = D.players.find((x) => x.id === editingId);
+      Object.assign(player, { name, hand, grip, style, r0, blade, club, u: now });
+    } else {
+      player = { id: newId('p_'), name, hand, grip, style, club, blade, rubber: '', r0, w0: 0, l0: 0, c: now, u: now };
+      D.players.push(player);
+    }
+    g('modalAddPlayer').classList.add('hidden');
+    commit();
+    if (linkAfterSave) linkSlotById(linkAfterSave, player);
+    if (profileId === player.id && !g('modalPlayerProfile').classList.contains('hidden')) openPlayerProfile(player.id);
+    toast(editingId ? `${name} updated` : `${name} added to the roster`);
+    editingId = null; linkAfterSave = null;
+  }
+
+  function deleteProfilePlayer() {
+    const p = D.players.find((x) => x.id === profileId); if (!p) return;
+    confirmDialog({
+      title: `Delete ${p.name}?`,
+      text: 'Their profile, rating and stats are removed. Matches they played stay in your history under their name.',
+      ok: 'Delete player', danger: true,
+      onOk: () => {
+        D.players = D.players.filter((x) => x.id !== p.id);
+        D.deleted.push({ id: p.id, t: Date.now() });
+        g('modalPlayerProfile').classList.add('hidden');
+        commit();
+        toast(`${p.name} deleted`);
+      }
+    });
+  }
+
+  // =====================================================================
+  //  MATCH SETUP: pick registered players in singles AND doubles
+  // =====================================================================
+  const SLOTS = [
+    { inp: 'inputP1', sel: 'selectRosterP1', side: 1, dbl: false },
+    { inp: 'inputP2', sel: 'selectRosterP2', side: 2, dbl: false },
+    { inp: 'inputA1', sel: 'selectRosterA1', side: 1, dbl: true },
+    { inp: 'inputA2', sel: 'selectRosterA2', side: 1, dbl: true },
+    { inp: 'inputB1', sel: 'selectRosterB1', side: 2, dbl: true },
+    { inp: 'inputB2', sel: 'selectRosterB2', side: 2, dbl: true }
+  ];
+  const slotByInp = (id) => SLOTS.find((s) => s.inp === id);
+
+  function slotPid(el) {
+    const pid = el && el.dataset.pid; if (!pid) return null;
+    const p = D.players.find((x) => x.id === pid);
+    if (!p || p.name.trim().toLowerCase() !== el.value.trim().toLowerCase()) return null;
+    return pid;
+  }
+
+  function updateSlotInfo(s) {
+    const el = g(s.inp), info = document.querySelector(`[data-info="${s.inp}"]`); if (!el || !info) return;
+    const pid = slotPid(el), p = pid && D.players.find((x) => x.id === pid);
+    if (p) { info.className = 'slot-info text-[10px] mt-1 min-h-[14px] text-emerald-400 font-semibold'; info.textContent = `✓ ${p.rating} ELO · ${p.wins}W-${p.losses}L · career tracked`; }
+    else if (el.value.trim()) { info.className = 'slot-info text-[10px] mt-1 min-h-[14px] text-slate-500'; info.textContent = 'Guest · this result won’t be saved to a profile'; }
+    else { info.className = 'slot-info text-[10px] mt-1 min-h-[14px]'; info.textContent = ''; }
+  }
+
+  function refreshSlotSelects() {
+    SLOTS.forEach((s) => {
+      const sel = g(s.sel), el = g(s.inp); if (!sel || !el) return;
+      if (el.dataset.pid && !D.players.some((p) => p.id === el.dataset.pid)) delete el.dataset.pid;
+      const cur = el.dataset.pid || '';
+      const used = new Set(SLOTS.filter((o) => o !== s && o.dbl === s.dbl).map((o) => g(o.inp).dataset.pid).filter(Boolean));
+      sel.textContent = '';
+      const ph = document.createElement('option'); ph.value = '';
+      ph.textContent = D.players.length ? 'Pick a registered player…' : 'No players yet — tap + New';
+      sel.appendChild(ph);
+      D.players.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach((p) => {
+        const o = document.createElement('option'); o.value = p.id; o.textContent = `${p.name} · ${p.rating}`;
+        if (used.has(p.id)) o.disabled = true;
+        sel.appendChild(o);
+      });
+      sel.value = cur;
+      updateSlotInfo(s);
+    });
+  }
+
+  function linkSlot(s, player) {
+    const el = g(s.inp); el.value = player.name; el.dataset.pid = player.id; refreshSlotSelects();
+  }
+  function linkSlotById(inpId, player) { const s = slotByInp(inpId); if (s) linkSlot(s, player); }
+
+  function assignToSlot(player, side) {
+    const group = SLOTS.filter((s) => s.dbl === !!state.isDoubles && (!side || s.side === side));
+    if (SLOTS.some((s) => s.dbl === !!state.isDoubles && g(s.inp).dataset.pid === player.id)) { toast(`${player.name} is already in this match`); return; }
+    let target = group.find((s) => !g(s.inp).value.trim()) || group.find((s) => !slotPid(g(s.inp))) || group[0];
+    linkSlot(target, player);
+    const label = state.isDoubles ? (target.side === 1 ? 'Team A' : 'Team B') : (target.side === 1 ? 'Player 1' : 'Player 2');
+    toast(`${player.name} added as ${label}`);
+    if (!(state.matchActive && !state.matchFinished)) switchTab('match');
+  }
+
+  window.smBeforeStart = function () {
+    const dbl = !!state.isDoubles;
+    const ids = dbl ? ['inputA1', 'inputA2', 'inputB1', 'inputB2'] : ['inputP1', 'inputP2'];
+    const seenId = new Set(), seenName = new Set();
+    for (const id of ids) {
+      const el = g(id), nm = el.value.trim(), pid = slotPid(el);
+      if (pid) { if (seenId.has(pid)) { toast(`${nm} is picked twice`); return false; } seenId.add(pid); }
+      if (nm) { const k = nm.toLowerCase(); if (seenName.has(k)) { toast('Each player needs a different name'); return false; } seenName.add(k); }
+    }
+    if (dbl) {
+      ['A', 'B'].forEach((t) => {
+        const ti = g('inputTeam' + t);
+        if (!ti.value.trim()) {
+          const first = (v) => v.trim().split(/\s+/)[0] || '';
+          const a = first(g('input' + t + '1').value), b = first(g('input' + t + '2').value);
+          ti.value = a && b ? `${a} & ${b}` : (a || b || '');
+        }
+      });
+    }
+    return true;
+  };
+
+  window.smAfterStart = function () {
+    const mk = (id, nm) => ({ pid: slotPid(g(id)), name: nm });
+    state.matchRoster = state.isDoubles
+      ? { a: [mk('inputA1', state.a1), mk('inputA2', state.a2)], b: [mk('inputB1', state.b1), mk('inputB2', state.b2)] }
+      : { a: [mk('inputP1', state.p1Name)], b: [mk('inputP2', state.p2Name)] };
+    state.matchStartTs = Date.now(); state.matchRecorded = 0;
+  };
+
+  // =====================================================================
+  //  RECORD A FINISHED MATCH → career stats
+  // =====================================================================
+  function recordMatch(winnerTeam) {
+    const key0 = state.matchStartTs;
+    if (!key0 || state.matchRecorded === key0 || !state.matchRoster) return;
+    state.matchRecorded = key0;
+    const R = state.matchRoster;
+    const known = (t) => t.filter((x) => x.pid && D.players.some((p) => p.id === x.pid)).map((x) => x.pid);
+    const idsA = known(R.a), idsB = known(R.b);
+    if (!idsA.length && !idsB.length) { renderCareer(null); return; }
+    const m = {
+      id: newId('m_'), ts: Date.now(), dbl: state.isDoubles ? 1 : 0, tg: state.targetScore, bo: state.seriesLength,
+      a: { n: getT1Name(), ids: idsA, names: R.a.map((x) => x.name) },
+      b: { n: getT2Name(), ids: idsB, names: R.b.map((x) => x.name) },
+      g: state.gamesHistory.map((x) => `${x.t1Score}-${x.t2Score}`).join(','),
+      w: winnerTeam, gw: [state.gamesWonT1, state.gamesWonT2], pt: [state.t1TotalPts, state.t2TotalPts]
+    };
+    D.matches.push(m);
+    commit();
+    renderCareer(m);
+    toast('Career stats updated');
+  }
+
+  function renderCareer(m) {
+    const box = g('summaryCareer'), rows = g('summaryCareerRows'), note = g('summaryCareerNote');
+    if (!box) return;
+    rows.textContent = ''; box.classList.remove('hidden');
+    if (!m) {
+      note.textContent = 'Tip: pick players from the roster before the match to build their career stats and ELO.';
+      return;
+    }
+    const mine = D.matches.find((x) => x.id === m.id) || m;
+    Object.keys(mine._rb || {}).forEach((pid) => {
+      const p = D.players.find((x) => x.id === pid); if (!p) return;
+      const before = mine._rb[pid], after = mine._ra[pid], d = after - before;
+      const won = (mine.a.ids.includes(pid) ? 1 : 2) === mine.w;
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-2 text-xs';
+      row.innerHTML = `<span class="w-5 h-5 rounded text-[10px] font-black flex items-center justify-center ${won ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${won ? 'W' : 'L'}</span>
+        <span class="flex-1 min-w-0 truncate text-slate-200 font-semibold">${esc(p.name)}</span>
+        <span class="text-slate-400 font-mono">${mine._elo ? `${before} → ${after}` : p.rating}</span>
+        ${mine._elo ? `<span class="font-bold ${d >= 0 ? 'text-emerald-400' : 'text-rose-400'} w-8 text-right">${d >= 0 ? '+' : ''}${d}</span>` : '<span class="w-8"></span>'}
+        <span class="text-slate-500 w-14 text-right">${p.wins}W-${p.losses}L</span>`;
+      rows.appendChild(row);
+    });
+    note.textContent = mine._elo ? '' : 'ELO unchanged: ELO only moves when both sides have registered players.';
+  }
+
+  const _hmw = window.handleMatchWin;
+  window.handleMatchWin = function (winnerTeam) {
+    const r = _hmw.apply(this, arguments);
+    try { recordMatch(winnerTeam); } catch (e) { console.error(e); }
+    return r;
+  };
+  const _rms = window.renderMatchSummaryModal;
+  window.renderMatchSummaryModal = function () {
+    const r = _rms.apply(this, arguments);
+    if (!state.matchFinished) { const b = g('summaryCareer'); if (b) b.classList.add('hidden'); }
+    return r;
+  };
+
+  function refreshAllRosterUI() {
+    renderPlayersRoster();
+    refreshSlotSelects();
+    if (profileId && !g('modalPlayerProfile').classList.contains('hidden')) {
+      if (D.players.some((p) => p.id === profileId)) openPlayerProfile(profileId); else g('modalPlayerProfile').classList.add('hidden');
+    }
+    updateAccountUI();
+  }
+
+  // =====================================================================
+  //  ACCOUNT + CLOUD SYNC
+  // =====================================================================
+  const Cloud = { pending: false, user: null, status: 'guest', last: 0, timer: null, busy: false, again: false, dirty: false, unsub: null, lastRev: '', err: '', retry: null };
+  const cloudOn = () => !!(window.SMCloud && window.SMCloud.configured && window.SMCloud.configured());
+
+  Cloud.schedule = function () {
+    if (!Cloud.user) return;
+    Cloud.dirty = true; setCloudStatus('pending');
+    clearTimeout(Cloud.timer); Cloud.timer = setTimeout(() => syncNow(false), 1200);
+  };
+
+  const STATUS = {
+    guest: ['Saved on this phone', 'text-slate-400'], pending: ['Saving…', 'text-amber-300'], syncing: ['Syncing…', 'text-amber-300'],
+    synced: ['Synced', 'text-emerald-400'], offline: ['Offline · saved on phone', 'text-amber-300'], error: ['Sync problem', 'text-rose-400']
+  };
+  function setCloudStatus(s) { Cloud.status = s; updateAccountUI(); }
+
+  async function syncNow(manual) {
+    if (!Cloud.user || !window.SMCloud) return;
+    if (Cloud.busy) { Cloud.again = true; return; }
+    if (!navigator.onLine && !manual) { setCloudStatus('offline'); return; }
+    Cloud.busy = true; setCloudStatus('syncing');
+    try {
+      const uid = Cloud.user.uid;
+      const res = await SMCloud.sync(uid, (remote) => mergeData(payload(), remote || {}), { email: Cloud.user.email, name: Cloud.user.name });
+      Cloud.lastRev = res.rev;
+      Cloud.dirty = false; Cloud.err = '';
+      applyRemote(res.data);
+      Cloud.last = Date.now();
+      setCloudStatus(Cloud.dirty ? 'pending' : 'synced');
+    } catch (e) {
+      Cloud.err = SMCloud.friendly ? SMCloud.friendly(e) : String(e && e.message || e);
+      const offline = !navigator.onLine || /network|unavailable|offline/i.test(String(e && (e.code || e.message)));
+      setCloudStatus(offline ? 'offline' : 'error');
+      clearTimeout(Cloud.retry); Cloud.retry = setTimeout(() => syncNow(false), 30000);
+    }
+    Cloud.busy = false;
+    if (Cloud.again) { Cloud.again = false; syncNow(false); }
+  }
+
+  // merge cloud data into this phone (never loses newer local work)
+  function applyRemote(remote) {
+    const remoteNorm = JSON.stringify(mergeData(remote || {}, {}));
+    setData(mergeData(payload(), remote || {})); saveLocal(); refreshAllRosterUI();
+    if (JSON.stringify(payload()) !== remoteNorm) {
+      Cloud.dirty = true; clearTimeout(Cloud.timer); Cloud.timer = setTimeout(() => syncNow(false), 800);
+    }
+  }
+
+  function startSub(uid) {
+    stopSub();
+    try {
+      Cloud.unsub = SMCloud.subscribe(uid, ({ data, rev }) => {
+        if (rev && rev === Cloud.lastRev) return;
+        const beforeP = D.players.length, beforeM = D.matches.length;
+        applyRemote(data);
+        if (D.players.length !== beforeP || D.matches.length !== beforeM) toast('Updated from your account');
+        Cloud.last = Date.now(); if (!Cloud.dirty) setCloudStatus('synced');
+      }, (e) => { Cloud.err = SMCloud.friendly(e); setCloudStatus('error'); });
+    } catch (e) {}
+  }
+  function stopSub() { if (Cloud.unsub) { try { Cloud.unsub(); } catch (e) {} Cloud.unsub = null; } }
+
+  async function onAuth(user) {
+    if (user) {
+      const wasSame = Cloud.user && Cloud.user.uid === user.uid;
+      Cloud.user = user; Cloud.pending = false; Cloud.status = 'syncing'; ls('sm_last_uid', user.uid);
+      const ns = 'u_' + user.uid;
+      if (D.ns !== ns) { loadNs(ns); refreshAllRosterUI(); }
+      updateAccountUI();
+      if (wasSame) return;
+      await syncNow(true);
+      offerGuestImport(user);
+      startSub(user.uid);
+    } else {
+      stopSub(); Cloud.user = null; Cloud.pending = false;
+      if (D.ns !== 'guest') { loadNs('guest'); refreshAllRosterUI(); }
+      setCloudStatus('guest');
+    }
+  }
+
+  function offerGuestImport(user) {
+    const flag = 'sm_imp_' + user.uid;
+    if (ls(flag)) return;
+    const gd = readNs('guest');
+    if (!gd.players.length && !gd.matches.length) { ls(flag, '1'); return; }
+    confirmDialog({
+      title: 'Add this phone’s data to your account?',
+      text: `This phone has ${gd.players.length} player${gd.players.length === 1 ? '' : 's'} and ${gd.matches.length} match${gd.matches.length === 1 ? '' : 'es'} saved as a guest. Add them to ${user.email || 'your account'}?`,
+      ok: 'Add to my account', cancel: 'Not now',
+      onOk: () => { ls(flag, '1'); setData(mergeData(payload(), gd)); saveLocal(); refreshAllRosterUI(); Cloud.schedule(); toast('Guest data added to your account'); },
+      onCancel: () => ls(flag, '1')
+    });
+  }
+
+  async function doSignOut() {
+    const uid = Cloud.user && Cloud.user.uid;
+    try { await SMCloud.signOut(); } catch (e) {}
+    if (uid) ls(KEYP + 'u_' + uid, null);
+    ls('sm_last_uid', null);
+    g('modalLogin').classList.add('hidden');
+    toast('Signed out');
+  }
+  async function signOutFlow() {
+    if (Cloud.dirty) { await syncNow(true); }
+    if (Cloud.dirty) {
+      confirmDialog({ title: 'Some changes are not uploaded yet', text: 'You seem to be offline. If you sign out now, changes that are not yet synced will be lost from this phone.', ok: 'Sign out anyway', danger: true, onOk: doSignOut });
+    } else doSignOut();
+  }
+
+  // ---- account modal UI
+  let authMode = 'signin', authBusy = false;
+
+  function updateAccountUI() {
+    const u = Cloud.user;
+    const st = STATUS[u ? Cloud.status : 'guest'] || STATUS.guest;
+    const name = u ? (u.name || (u.email || 'Account').split('@')[0]) : (Cloud.pending ? 'Account' : 'Guest');
+    g('navUserName').textContent = name;
+    g('navUserRole').textContent = !u && Cloud.pending ? 'Loading…' : st[0];
+    g('navUserAvatar').textContent = u ? initialsOf(name) : (Cloud.pending ? '…' : 'G');
+    const dot = g('navSyncDot');
+    if (dot) dot.className = 'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-900 ' + (u ? ({ synced: 'bg-emerald-400', error: 'bg-rose-400' }[Cloud.status] || 'bg-amber-400') : 'bg-slate-500');
+
+    const cfg = cloudOn();
+    g('authSignedIn').classList.toggle('hidden', !u);
+    g('authSignedOut').classList.toggle('hidden', !!u || !cfg);
+    g('authUnconfigured').classList.toggle('hidden', !!u || cfg);
+    g('authSubtitle').textContent = u ? 'Your players and matches are saved to this account.' : (cfg ? 'Sign in to keep your players, matches and ELO safe and on every phone.' : 'You are using the app as a guest.');
+    if (u) {
+      g('modalUserAvatar').textContent = initialsOf(name);
+      g('modalUserName').textContent = name;
+      g('modalUserEmail').textContent = u.email || '';
+      g('modalUserRoleBadge').textContent = u.provider === 'google.com' ? 'Google' : 'Email';
+      const b = g('cloudStatusBadge'); b.textContent = st[0]; b.className = 'font-bold ' + st[1];
+      g('cloudStatusDetail').textContent = Cloud.err && (Cloud.status === 'error' || Cloud.status === 'offline') ? Cloud.err
+        : (Cloud.last ? 'Last synced ' + new Date(Cloud.last).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'Waiting for the first sync…');
+      g('cloudCounts').textContent = `${D.players.length} player${D.players.length === 1 ? '' : 's'} · ${D.matches.length} match${D.matches.length === 1 ? '' : 'es'}`;
+    }
+  }
+  window.updateActiveUserDisplay = updateAccountUI;
+
+  function setAuthMode(m) {
+    authMode = m;
+    const up = m === 'signup';
+    g('authTabSignIn').className = 'flex-1 py-1.5 rounded-lg font-bold transition text-center ' + (!up ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:text-white font-medium');
+    g('authTabSignUp').className = 'flex-1 py-1.5 rounded-lg font-bold transition text-center ' + (up ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:text-white font-medium');
+    g('authNameWrap').classList.toggle('hidden', !up);
+    g('btnForgotPassword').classList.toggle('hidden', up);
+    g('authSubmitText').textContent = up ? 'Create account' : 'Sign in';
+    g('inputLoginPassword').autocomplete = up ? 'new-password' : 'current-password';
+    authError('');
+  }
+  function authError(msg) {
+    const e = g('loginErrorMsg'); e.textContent = msg || ''; e.classList.toggle('hidden', !msg);
+  }
+  function setAuthBusy(b) {
+    authBusy = b;
+    ['btnSubmitEmailLogin', 'btnGoogleSignIn'].forEach((id) => { g(id).disabled = b; g(id).classList.toggle('opacity-60', b); });
+    g('authSubmitText').textContent = b ? 'Please wait…' : (authMode === 'signup' ? 'Create account' : 'Sign in');
+  }
+  async function runAuth(fn, okMsg) {
+    if (authBusy) return; authError(''); setAuthBusy(true);
+    try { const u = await fn(); g('modalLogin').classList.add('hidden'); toast(okMsg(u)); }
+    catch (e) { authError(SMCloud.friendly(e)); }
+    setAuthBusy(false);
+  }
+
+  function bindAccountUI() {
+    g('btnAccountLogin').addEventListener('click', () => { updateAccountUI(); setAuthMode(authMode); g('modalLogin').classList.remove('hidden'); });
+    g('btnCloseLogin').addEventListener('click', () => g('modalLogin').classList.add('hidden'));
+    g('authTabSignIn').addEventListener('click', () => setAuthMode('signin'));
+    g('authTabSignUp').addEventListener('click', () => setAuthMode('signup'));
+    g('btnToggleLoginPass').addEventListener('click', () => {
+      const i = g('inputLoginPassword'), show = i.type === 'password'; i.type = show ? 'text' : 'password'; g('btnToggleLoginPass').textContent = show ? '🔒' : '👁';
+    });
+    g('btnSubmitEmailLogin').addEventListener('click', () => {
+      const email = g('inputLoginEmail').value.trim(), pw = g('inputLoginPassword').value, name = g('inputSignUpName').value.trim();
+      if (!email || !pw) return authError('Please enter your email and password.');
+      if (authMode === 'signup') {
+        if (!name) return authError('Please enter your name.');
+        if (pw.length < 6) return authError('Password must be at least 6 characters.');
+        runAuth(() => SMCloud.signUp(email, pw, name), (u) => `Welcome, ${u.name || name}!`);
+      } else runAuth(() => SMCloud.signIn(email, pw), (u) => `Signed in as ${u.name || u.email}`);
+    });
+    ['inputLoginEmail', 'inputLoginPassword', 'inputSignUpName'].forEach((id) => g(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') g('btnSubmitEmailLogin').click(); }));
+    g('btnGoogleSignIn').addEventListener('click', () => runAuth(() => SMCloud.google(), (u) => `Signed in as ${u.name || u.email}`));
+    g('btnForgotPassword').addEventListener('click', async () => {
+      const email = g('inputLoginEmail').value.trim();
+      if (!email) return authError('Type your email above first, then tap "Forgot?".');
+      try { await SMCloud.reset(email); authError(''); toast(`If ${email} has an account, a reset link is on its way.`); }
+      catch (e) { authError(SMCloud.friendly(e)); }
+    });
+    g('btnSignOutUser').addEventListener('click', signOutFlow);
+    g('btnSyncNow').addEventListener('click', () => syncNow(true));
+    window.addEventListener('online', () => { if (Cloud.user) syncNow(true); });
+    setInterval(() => { if (Cloud.user && (Cloud.dirty || Cloud.status === 'offline' || Cloud.status === 'error')) syncNow(false); }, 45000);
+  }
+
+  // =====================================================================
+  //  WIRING
+  // =====================================================================
+  function bindRosterUI() {
+    g('inputPlayerSearch').addEventListener('input', (e) => renderPlayersRoster(undefined, e.target.value.trim()));
+    document.querySelectorAll('.filter-chip').forEach((btn) => btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter-chip').forEach((c) => { c.className = 'filter-chip px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-medium border border-slate-700'; });
+      e.currentTarget.className = 'filter-chip px-3 py-1.5 rounded-lg bg-orange-500/20 text-orange-300 font-bold border border-orange-500/30';
+      renderPlayersRoster(e.currentTarget.dataset.filter, undefined);
+    }));
+    g('playersRosterGrid').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      const act = b.dataset.act, p = D.players.find((x) => x.id === b.dataset.id);
+      if (act === 'add') openPlayerModal();
+      else if (act === 'profile' && p) openPlayerProfile(p.id);
+      else if (act === 'use' && p) { assignToSide(p); }
+    });
+    function assignToSide(p, side) { assignToSlot(p, side); }
+    g('btnOpenAddPlayer').addEventListener('click', () => openPlayerModal());
+    g('btnCloseAddPlayer').addEventListener('click', () => g('modalAddPlayer').classList.add('hidden'));
+    g('btnCancelAddPlayer').addEventListener('click', () => g('modalAddPlayer').classList.add('hidden'));
+    g('btnSaveNewPlayer').addEventListener('click', savePlayerFromModal);
+    g('inputNewPlayerName').addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerFromModal(); });
+
+    g('btnCloseProfile').addEventListener('click', () => g('modalPlayerProfile').classList.add('hidden'));
+    g('btnPickAsP1').addEventListener('click', () => { const p = D.players.find((x) => x.id === profileId); if (p) { g('modalPlayerProfile').classList.add('hidden'); assignToSlot(p, 1); } });
+    g('btnPickAsP2').addEventListener('click', () => { const p = D.players.find((x) => x.id === profileId); if (p) { g('modalPlayerProfile').classList.add('hidden'); assignToSlot(p, 2); } });
+    g('btnEditPlayer').addEventListener('click', () => { g('modalPlayerProfile').classList.add('hidden'); openPlayerModal({ id: profileId }); });
+    g('btnDeletePlayer').addEventListener('click', deleteProfilePlayer);
+  }
+
+  function bindSlots() {
+    SLOTS.forEach((s) => {
+      const el = g(s.inp), sel = g(s.sel); if (!el || !sel) return;
+      el.addEventListener('input', () => {
+        const t = el.value.trim().toLowerCase();
+        const m = t && D.players.find((p) => p.name.trim().toLowerCase() === t);
+        if (m) el.dataset.pid = m.id; else delete el.dataset.pid;
+        refreshSlotSelects();
+      });
+      sel.addEventListener('change', () => {
+        const p = D.players.find((x) => x.id === sel.value);
+        if (p) { el.value = p.name; el.dataset.pid = p.id; } else delete el.dataset.pid;
+        refreshSlotSelects();
+      });
+    });
+    document.querySelectorAll('.btn-new-slot').forEach((b) => b.addEventListener('click', () => {
+      openPlayerModal({ prefill: g(b.dataset.newfor).value.trim(), linkInput: b.dataset.newfor });
+    }));
+    ['typeSinglesBtn', 'typeDoublesBtn'].forEach((id) => g(id).addEventListener('click', () => setTimeout(refreshSlotSelects, 0)));
+  }
+
+  window.smInit = function () {
+    const configured = cloudOn();
+    const lastUid = configured ? ls('sm_last_uid') : null;
+    Cloud.pending = !!lastUid;
+    loadNs(lastUid ? 'u_' + lastUid : 'guest');
+    bindRosterUI(); bindSlots(); bindAccountUI();
+    setAuthMode('signin');
+    refreshAllRosterUI();
+    if (configured) {
+      try { SMCloud.start(); SMCloud.onAuth(onAuth); } catch (e) { console.error(e); }
+    }
+  };
+
+  // expose for tests / debugging
+  window.__SM = { D, Cloud, mergeData, sanitize, payload, recompute, commit };
+})();
+
   </script>
 
   <!-- LIVE SYNC: publishes the score to viewers through a free relay (ntfy) -->
