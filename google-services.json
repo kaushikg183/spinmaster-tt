@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1067806014732",
+    "project_id": "spinmaster-tt",
+    "storage_bucket": "spinmaster-tt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067806014732:android:09a6439f188d6129a01d29",
+        "android_client_info": {
+          "package_name": "com.spinmaster.tt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1067806014732-5466i9qaa1co8mijl8tukth7rsc2hlqb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyZcGZirKQlwDlFlZo-Bw_d4fVSIjUz10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067806014732-5466i9qaa1co8mijl8tukth7rsc2hlqb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
