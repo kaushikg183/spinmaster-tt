@@ -56,8 +56,23 @@ jobs:
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           if [ -f google-services.json ]; then
-            echo "google-services.json found: adding native Google sign-in"
-            npm install @capacitor-firebase/authentication@6 firebase@10
+            cat > check-gs.js <<'EOF'
+          const j = JSON.parse(require('fs').readFileSync('google-services.json', 'utf8'));
+          const apps = (j.client || []).filter(c => c.client_info && c.client_info.android_client_info && c.client_info.android_client_info.package_name === 'com.spinmaster.tt');
+          if (!apps.length) { console.log('PROBLEM: google-services.json has no Android app with package com.spinmaster.tt'); process.exit(1); }
+          if (!apps.some(c => (c.oauth_client || []).some(o => o.client_type === 3))) { console.log('PROBLEM: google-services.json has no Google web client. Turn on Google in Authentication, add the SHA-1 to the Android app, then download the file again'); process.exit(2); }
+          EOF
+            if node check-gs.js; then
+              echo "google-services.json looks good: adding native Google sign-in"
+              npm install @capacitor-firebase/authentication@6 firebase@10
+              # safety net: a Google sign-in problem must never stop the whole app from opening
+              P=node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/FirebaseAuthenticationPlugin.java
+              sed -i 's#implementation = new FirebaseAuthentication(this, config);#try { implementation = new FirebaseAuthentication(this, config); } catch (Throwable t) { android.util.Log.e("SpinMaster", "Google sign-in disabled", t); }#' "$P"
+              grep -q "Google sign-in disabled" "$P" && echo "safety net applied" || echo "note: safety net not applied"
+            else
+              echo "WARNING: skipping native Google sign-in because google-services.json is not usable (see PROBLEM above). Email login still works."
+              rm -f google-services.json
+            fi
           else
             echo "No google-services.json: building without native Google sign-in (email login still works)"
           fi
