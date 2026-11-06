@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1067806014732-si7ge92g654tv942g7uj9n4f1s0nvh4e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.spinmaster.tt",
+            "certificate_hash": "783744b03b02b91284a8e44f8c51aefcd3a0ad20"
+          }
+        },
+        {
           "client_id": "1067806014732-5466i9qaa1co8mijl8tukth7rsc2hlqb.apps.googleusercontent.com",
           "client_type": 3
         }
