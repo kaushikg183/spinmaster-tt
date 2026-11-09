@@ -88,7 +88,7 @@
     @keyframes logoFloat { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-7deg); } }
 
     /* ---- view transitions (replay every time a view goes display:none -> shown) ---- */
-    #viewSetup, #viewMatch, #viewPlayers, #viewLiveStream { animation: viewIn .45s var(--ease-out) backwards; }
+    #viewSetup, #viewMatch, #viewPlayers, #viewLiveStream, #viewClub { animation: viewIn .45s var(--ease-out) backwards; }
     #viewSetup > * { animation: viewIn .55s var(--ease-out) backwards; }
     #viewSetup > *:nth-child(1) { animation-delay: .05s; }
     #viewSetup > *:nth-child(2) { animation-delay: .11s; }
@@ -210,6 +210,21 @@
     #viewerPill { transition: opacity .3s, transform .3s; }
     #viewerPill.off { opacity: 0; transform: scale(.8); pointer-events: none; }
 
+
+    /* ---- club hub ---- */
+    #viewClub > * { animation: viewIn .5s var(--ease-out) backwards; }
+    #viewClub > *:nth-child(2) { animation-delay: .08s; } #viewClub > *:nth-child(3) { animation-delay: .16s; } #viewClub > *:nth-child(4) { animation-delay: .24s; }
+    .club-row { animation: viewIn .45s var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 45ms + .1s); }
+    .club-row:active { transform: scale(.985); }
+    .badge-unlock { animation: badgeIn .7s var(--ease-spring) backwards; }
+    @keyframes badgeIn { 0% { opacity: 0; transform: translateX(-24px) scale(.9); } 100% { opacity: 1; transform: none; } }
+    #lwBarA, #wcBarA { transition: width .7s var(--ease-out); }
+    @media (max-width: 639px) {
+      header nav .nav-tab svg { display: none; }
+      #navTabClub { flex: 1; justify-content: center; padding-top: 8px; padding-bottom: 8px; }
+      header nav .nav-tab { padding-left: 6px; padding-right: 6px; }
+    }
+
     /* ---- respect "remove animations" ---- */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
@@ -265,6 +280,10 @@
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span class="hidden sm:inline">Players & Roster</span>
           <span class="sm:hidden">Roster</span>
+        </button>
+        <button id="navTabClub" type="button" class="nav-tab px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          <span>Club</span>
         </button>
         <button id="navTabLive" type="button" class="nav-tab px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M20 12v8H4v-8"/><path d="m2 4 10 7 10-7"/></svg>
@@ -424,6 +443,20 @@
         </div>
 
         <p class="text-[10px] text-slate-500 leading-relaxed">Pick registered players so their wins, losses and ELO update after the match. A name you simply type plays as a guest. Tap <b class="text-slate-300">+ New</b> to register someone on the spot.</p>
+
+        <div id="autoBalanceWrap" class="hidden">
+          <button type="button" id="btnAutoBalance" class="w-full py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-200 text-xs font-bold transition">⚖️ Auto-balance teams (pick 4 players first)</button>
+        </div>
+
+        <div id="winChanceBox" class="hidden bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-bold gap-2">
+            <span id="wcNameA" class="text-cyan-300 truncate"></span>
+            <span class="text-slate-400 uppercase tracking-wider text-[10px] shrink-0">Win chance (from ELO)</span>
+            <span id="wcNameB" class="text-rose-300 truncate text-right"></span>
+          </div>
+          <div class="flex h-2.5 rounded-full overflow-hidden bg-slate-900"><div id="wcBarA" class="bg-cyan-500" style="width:50%"></div><div class="bg-rose-500 flex-1"></div></div>
+          <div class="flex justify-between text-sm font-black"><span id="wcPctA" class="text-cyan-300">50%</span><span id="wcPctB" class="text-rose-300">50%</span></div>
+        </div>
       </div>
 
             <!-- Target Score per Game (11, 21, 25, Custom) -->
@@ -511,6 +544,18 @@
         <div class="flex items-center gap-1.5" id="gamesScorePills">
           <!-- Populated by JS: e.g. G1: 11-9 | G2: 8-11 -->
         </div>
+      </div>
+
+<!-- LIVE WIN PROBABILITY -->
+      <div id="liveWinBar" class="hidden bg-slate-900/80 border border-slate-800 rounded-2xl px-3 py-2 shadow-lg">
+        <div id="lwRow" class="flex items-center gap-2 text-[11px] font-bold">
+          <span id="lwNameA" class="text-cyan-300 truncate max-w-[26%]"></span>
+          <span id="lwPctA" class="text-cyan-200 font-black w-9 text-right tabular-nums">50%</span>
+          <div id="lwTrack" class="flex-1 h-2 rounded-full overflow-hidden bg-slate-800 flex"><div id="lwBarA" class="bg-cyan-500" style="width:50%"></div><div class="bg-rose-500 flex-1"></div></div>
+          <span id="lwPctB" class="text-rose-200 font-black w-9 tabular-nums">50%</span>
+          <span id="lwNameB" class="text-rose-300 truncate max-w-[26%]"></span>
+        </div>
+        <p class="text-[9px] text-slate-500 text-center mt-0.5">Win probability: an estimate from ELO and the live score</p>
       </div>
 
       <!-- MAIN SPLIT SCOREBOARD (TAP TO SCORE) -->
@@ -678,6 +723,38 @@
       <div id="playersRosterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         <!-- Dynamically rendered by JS -->
       </div>
+    </div>
+
+    <!-- VIEW: CLUB HUB (leaderboard, highlights, rivalries) -->
+    <div id="viewClub" class="hidden flex-1 flex flex-col space-y-4 max-w-3xl mx-auto w-full">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold">Club Hub</span>
+          <h2 class="text-xl sm:text-2xl font-black text-white mt-1.5">Leaderboard &amp; Rivalries</h2>
+          <p class="text-xs text-slate-400">Rankings come from real match results and update after every match.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2" id="clubSummary"></div>
+      </div>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-black text-white">🏆 Leaderboard <span class="text-[10px] font-medium text-slate-500">ranked by ELO · tap a player for their profile</span></h3>
+        <div class="space-y-1.5" id="clubBoard"></div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-black text-white">✨ Highlights</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="clubHighlights"></div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-black text-white">⚔️ Head to head</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="h2hA" class="min-w-0 bg-slate-950 text-cyan-300 text-xs border border-slate-700 rounded-lg px-2 py-2 focus:outline-none"></select>
+          <select id="h2hB" class="min-w-0 bg-slate-950 text-rose-300 text-xs border border-slate-700 rounded-lg px-2 py-2 focus:outline-none"></select>
+        </div>
+        <div id="h2hResult"></div>
+        <div class="space-y-1.5" id="topRivalries"></div>
+      </section>
     </div>
 
     <!-- VIEW: LIVE STREAM / TV BROADCAST & SPECTATOR HUB -->
@@ -870,8 +947,8 @@
   </div>
 
   <!-- MODAL: MATCH COMPLETED CRICKET-STYLE SCORECARD -->
-  <div id="modalMatchSummary" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-xl w-full my-8 space-y-5 shadow-2xl relative">
+  <div id="modalMatchSummary" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md overflow-y-auto p-4 flex justify-center">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-7 max-w-xl w-full my-auto space-y-5 shadow-2xl relative">
       
       <!-- Close button -->
       <button type="button" id="btnCloseSummary" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
@@ -917,6 +994,7 @@
       <div id="summaryCareer" class="hidden bg-slate-950/70 border border-slate-800 rounded-2xl p-3 space-y-2">
         <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Career updated</p>
         <div id="summaryCareerRows" class="space-y-1.5"></div>
+        <div id="summaryCareerBadges" class="space-y-1.5"></div>
         <p id="summaryCareerNote" class="text-[10px] text-slate-500"></p>
       </div>
 
@@ -1061,6 +1139,16 @@
       <div class="space-y-1.5">
         <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last matches</p>
         <div class="space-y-1.5" id="profileRecent"></div>
+      </div>
+
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rating curve</p>
+        <div id="profileChart"></div>
+      </div>
+
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Achievements <span id="profileBadgeCount" class="text-amber-300 ml-1"></span></p>
+        <div class="grid grid-cols-3 gap-1.5" id="profileBadges"></div>
       </div>
 
       <div class="grid grid-cols-2 gap-2 pt-1">
@@ -2823,6 +2911,7 @@
         <span class="text-slate-500 w-12 text-right">${esc(date)}</span></div>`;
     }).join('') : '<p class="text-[11px] text-slate-500">No matches recorded yet.</p>';
 
+    if (window.ClubHub) ClubHub.profileExtras(p);
     g('modalPlayerProfile').classList.remove('hidden');
   };
 
@@ -2980,6 +3069,7 @@
       ? { a: [mk('inputA1', state.a1), mk('inputA2', state.a2)], b: [mk('inputB1', state.b1), mk('inputB2', state.b2)] }
       : { a: [mk('inputP1', state.p1Name)], b: [mk('inputP2', state.p2Name)] };
     state.matchStartTs = Date.now(); state.matchRecorded = 0;
+    if (window.ClubHub) ClubHub.updateLiveWin();
   };
 
   // =====================================================================
@@ -3000,16 +3090,26 @@
       g: state.gamesHistory.map((x) => `${x.t1Score}-${x.t2Score}`).join(','),
       w: winnerTeam, gw: [state.gamesWonT1, state.gamesWonT2], pt: [state.t1TotalPts, state.t2TotalPts]
     };
+    const allIds = idsA.concat(idsB);
+    const before = window.ClubHub ? ClubHub.earned(allIds) : null;
     D.matches.push(m);
     commit();
-    renderCareer(m);
-    toast('Career stats updated');
+    const won = window.ClubHub ? ClubHub.unlocked(allIds, before) : [];
+    renderCareer(m, won);
+    toast(won.length ? `${won[0].icon} ${won[0].player} unlocked ${won[0].name}${won.length > 1 ? ` +${won.length - 1} more` : ''}` : 'Career stats updated');
   }
 
-  function renderCareer(m) {
+  function renderCareer(m, unlockedList) {
     const box = g('summaryCareer'), rows = g('summaryCareerRows'), note = g('summaryCareerNote');
     if (!box) return;
     rows.textContent = ''; box.classList.remove('hidden');
+    const bb = g('summaryCareerBadges'); if (bb) bb.textContent = '';
+    (unlockedList || []).forEach((u) => {
+      const d = document.createElement('div');
+      d.className = 'badge-unlock flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/30 rounded-lg px-2.5 py-1.5';
+      d.innerHTML = `<span class="text-lg">${esc(u.icon)}</span><span class="flex-1 min-w-0"><b class="text-amber-200">${esc(u.player)}</b> <span class="text-slate-300">unlocked</span> <b class="text-amber-300">${esc(u.name)}</b></span>`;
+      if (bb) bb.appendChild(d);
+    });
     if (!m) {
       note.textContent = 'Tip: pick players from the roster before the match to build their career stats and ELO.';
       return;
@@ -3045,6 +3145,7 @@
   };
 
   function refreshAllRosterUI() {
+    if (window.ClubHub) setTimeout(() => ClubHub.refresh(), 0);
     renderPlayersRoster();
     refreshSlotSelects();
     if (profileId && !g('modalPlayerProfile').classList.contains('hidden')) {
@@ -3318,7 +3419,377 @@
   };
 
   // expose for tests / debugging
-  window.__SM = { D, Cloud, mergeData, sanitize, payload, recompute, commit };
+  window.__SM = { D, Cloud, mergeData, sanitize, payload, recompute, commit, slotPid, SLOTS, refreshSlotSelects, initialsOf };
+})();
+
+  </script>
+
+  <!-- CLUB HUB: leaderboard, achievements, win chances, rivalries -->
+  <script>
+(function () {
+  'use strict';
+  const g = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SM = () => window.__SM;
+  const D = () => window.__SM.D;
+  const toast = (m) => { try { showToast(m); } catch (e) {} };
+  const dateTxt = (ts) => new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const firstName = (n) => String(n || '').trim().split(/\s+/)[0] || '';
+  const avg = (a) => a.reduce((s, x) => s + x, 0) / (a.length || 1);
+
+  // =====================================================================
+  //  WIN PROBABILITY  (ELO sets the starting strength, the live score moves it)
+  // =====================================================================
+  const expected = (ra, rb) => 1 / (1 + Math.pow(10, (rb - ra) / 400));
+
+  // chance the first team wins a game from score x-y, if it wins each point with probability p
+  function gameWin(x0, y0, p, T) {
+    const q = 1 - p, pd = (p * p) / (p * p + q * q), memo = new Map();
+    function f(x, y) {
+      if (x >= T && x - y >= 2) return 1;
+      if (y >= T && y - x >= 2) return 0;
+      if (x >= T - 1 && y >= T - 1) { const d = x - y; return d === 0 ? pd : (d === 1 ? p + q * pd : p * pd); }
+      const k = x * 200 + y; if (memo.has(k)) return memo.get(k);
+      const v = p * f(x + 1, y) + q * f(x, y + 1); memo.set(k, v); return v;
+    }
+    return f(x0, y0);
+  }
+  // chance the first team wins the match from games gA-gB and current game score a-b
+  function matchWin(gA, gB, need, a, b, p, T) {
+    const g0 = gameWin(0, 0, p, T), gc = gameWin(a, b, p, T), memo = new Map();
+    function M(x, y) {
+      if (x >= need) return 1; if (y >= need) return 0;
+      const k = x * 10 + y; if (memo.has(k)) return memo.get(k);
+      const v = g0 * M(x + 1, y) + (1 - g0) * M(x, y + 1); memo.set(k, v); return v;
+    }
+    return gc * M(gA + 1, gB) + (1 - gc) * M(gA, gB + 1);
+  }
+  // find the per-point probability that makes the pre-match chance equal the ELO expectation
+  function calibrate(E, need, T) {
+    if (Math.abs(E - 0.5) < 1e-4) return 0.5;
+    let lo = 0.02, hi = 0.98;
+    for (let i = 0; i < 28; i++) { const mid = (lo + hi) / 2; if (matchWin(0, 0, need, 0, 0, mid, T) < E) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+
+  function sideRatings(pids) {
+    return pids.map((id) => D().players.find((p) => p.id === id)).filter(Boolean).map((p) => p.rating);
+  }
+  function eloExpectation(idsA, idsB) {
+    const ra = sideRatings(idsA), rb = sideRatings(idsB);
+    if (!ra.length || !rb.length) return null;
+    return expected(avg(ra), avg(rb));
+  }
+
+  function liveWinPct() {
+    if (!state.matchActive) return null;
+    if (state.matchFinished) return state.gamesWonT1 > state.gamesWonT2 ? 100 : 0;
+    const R = state.matchRoster;
+    const idsA = R ? R.a.map((x) => x.pid).filter(Boolean) : [], idsB = R ? R.b.map((x) => x.pid).filter(Boolean) : [];
+    const E = eloExpectation(idsA, idsB);
+    const need = Math.ceil((state.seriesLength || 3) / 2), T = state.targetScore || 11;
+    const p = calibrate(E == null ? 0.5 : E, need, T);
+    let a = state.currentT1Score, b = state.currentT2Score;
+    if ((a >= T && a - b >= 2) || (b >= T && b - a >= 2)) { a = 0; b = 0; }   // game already decided
+    const w = matchWin(state.gamesWonT1, state.gamesWonT2, need, a, b, p, T);
+    return Math.min(99, Math.max(1, Math.round(w * 100)));
+  }
+
+  function updateLiveWin() {
+    const box = g('liveWinBar'); if (!box) return;
+    const pct = liveWinPct();
+    if (pct == null) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    g('lwNameA').textContent = firstName(getT1Name()); g('lwNameB').textContent = firstName(getT2Name());
+    g('lwPctA').textContent = pct + '%'; g('lwPctB').textContent = (100 - pct) + '%';
+    g('lwBarA').style.width = pct + '%';
+    const fl = !!state.isFlipped;
+    g('lwRow').classList.toggle('flex-row-reverse', fl); g('lwTrack').classList.toggle('flex-row-reverse', fl);
+  }
+
+  // ---- win chance on the setup screen
+  function setupSides() {
+    const dbl = !!state.isDoubles, S = SM();
+    const ids = (side) => S.SLOTS.filter((s) => s.dbl === dbl && s.side === side).map((s) => S.slotPid(g(s.inp))).filter(Boolean);
+    return [ids(1), ids(2)];
+  }
+  function updateWinChance() {
+    const box = g('winChanceBox'); if (!box || !SM()) return;
+    const [A, B] = setupSides(), E = eloExpectation(A, B);
+    if (E == null) { box.classList.add('hidden'); return; }
+    const pa = Math.round(E * 100);
+    const nm = (ids) => ids.map((id) => D().players.find((p) => p.id === id)).filter(Boolean).map((p) => firstName(p.name)).join(' & ');
+    g('wcNameA').textContent = nm(A); g('wcNameB').textContent = nm(B);
+    g('wcPctA').textContent = pa + '%'; g('wcPctB').textContent = (100 - pa) + '%';
+    g('wcBarA').style.width = pa + '%';
+    box.classList.remove('hidden');
+  }
+
+  function autoBalance() {
+    const S = SM(), slots = S.SLOTS.filter((s) => s.dbl);
+    const picked = slots.map((s) => S.slotPid(g(s.inp))).filter(Boolean);
+    const uniq = Array.from(new Set(picked));
+    if (uniq.length < 4) { toast('Pick 4 registered players first (in any slots), then tap Auto-balance'); return; }
+    const pl = uniq.map((id) => D().players.find((p) => p.id === id));
+    const splits = [[[0, 1], [2, 3]], [[0, 2], [1, 3]], [[0, 3], [1, 2]]];
+    let best = null;
+    splits.forEach((sp) => {
+      const a = avg(sp[0].map((i) => pl[i].rating)), b = avg(sp[1].map((i) => pl[i].rating));
+      const gap = Math.abs(a - b); if (!best || gap < best.gap - 1e-9) best = { sp, gap };
+    });
+    const [ta, tb] = best.sp;
+    const arrangement = [pl[ta[0]], pl[ta[1]], pl[tb[0]], pl[tb[1]]];
+    ['A', 'B'].forEach((t) => { g('inputTeam' + t).value = ''; });
+    const order = ['inputA1', 'inputA2', 'inputB1', 'inputB2'];
+    order.forEach((id, i) => { const el = g(id); el.value = arrangement[i].name; el.dataset.pid = arrangement[i].id; });
+    S.refreshSlotSelects(); updateWinChance();
+    const E = eloExpectation([arrangement[0].id, arrangement[1].id], [arrangement[2].id, arrangement[3].id]);
+    toast(`Balanced teams: ${Math.round(E * 100)}% vs ${100 - Math.round(E * 100)}%`);
+  }
+
+  // =====================================================================
+  //  ACHIEVEMENTS  (worked out from the match history, so they follow the account)
+  // =====================================================================
+  const ACH = [
+    { id: 'first', icon: '🏓', name: 'First Rally', desc: 'Play your first match', test: (s) => s.mp >= 1 },
+    { id: 'win1', icon: '🏆', name: 'First Win', desc: 'Win a match', test: (s) => s.wins >= 1 },
+    { id: 'reg', icon: '🎖️', name: 'Regular', desc: 'Play 10 matches', test: (s) => s.mp >= 10, prog: (s) => [s.mp, 10] },
+    { id: 'legend', icon: '🏅', name: 'Club Legend', desc: 'Play 50 matches', test: (s) => s.mp >= 50, prog: (s) => [s.mp, 50] },
+    { id: 'hot', icon: '🔥', name: 'Hot Streak', desc: 'Win 3 matches in a row', test: (s) => s.best >= 3, prog: (s) => [s.best, 3] },
+    { id: 'fire', icon: '⚡', name: 'On Fire', desc: 'Win 5 matches in a row', test: (s) => s.best >= 5, prog: (s) => [s.best, 5] },
+    { id: 'sweep', icon: '🧹', name: 'Clean Sweep', desc: 'Win a best-of-3 or longer without losing a game', test: (s) => s.sweeps >= 1 },
+    { id: 'perfect', icon: '💯', name: 'Perfect Game', desc: 'Win a game 11-0', test: (s) => s.perfect >= 1 },
+    { id: 'giant', icon: '🗡️', name: 'Giant Killer', desc: 'Beat opponents rated 100+ higher', test: (s) => s.giant >= 1 },
+    { id: 'comeback', icon: '🔄', name: 'Comeback', desc: 'Win a match after losing the first game', test: (s) => s.comeback >= 1 },
+    { id: 'escape', icon: '🧗', name: 'Great Escape', desc: 'Win a best-of-5 or longer from 0-2 down', test: (s) => s.escape >= 1 },
+    { id: 'duo', icon: '🤝', name: 'Team Player', desc: 'Win a doubles match', test: (s) => s.dblWins >= 1 },
+    { id: 'rising', icon: '🚀', name: 'Rising Star', desc: 'Climb 50 ELO above your start', test: (s) => s.peakGain >= 50, prog: (s) => [Math.max(0, s.peakGain), 50] }
+  ];
+
+  const parseGames = (m) => (m.g ? m.g.split(',').map((x) => x.split('-').map((n) => +n || 0)) : []);
+
+  function statsFor(pid) {
+    const player = D().players.find((p) => p.id === pid);
+    const s = { mp: 0, wins: 0, best: 0, run: 0, sweeps: 0, perfect: 0, giant: 0, comeback: 0, escape: 0, dblWins: 0, peakGain: 0 };
+    if (!player) return s;
+    let peak = player.r0;
+    D().matches.forEach((m) => {
+      const onA = m.a.ids.includes(pid), onB = m.b.ids.includes(pid);
+      if (!onA && !onB) return;
+      const side = onA ? 1 : 2, won = m.w === side, games = parseGames(m).map((x) => (side === 1 ? x : [x[1], x[0]]));
+      s.mp++;
+      if (m._ra && m._ra[pid] != null) peak = Math.max(peak, m._ra[pid]);
+      if (won) { s.wins++; s.run++; s.best = Math.max(s.best, s.run); } else s.run = 0;
+      games.forEach((x) => { if (x[0] > x[1] && x[1] === 0) s.perfect++; });
+      if (won) {
+        const lost = m.gw[2 - side];
+        if (m.bo >= 3 && lost === 0) s.sweeps++;
+        if (m.bo >= 3 && games.length && games[0][0] < games[0][1]) s.comeback++;
+        if (m.bo >= 5 && games.length >= 2 && games[0][0] < games[0][1] && games[1][0] < games[1][1]) s.escape++;
+        if (m.dbl) s.dblWins++;
+        if (m._elo) {
+          const mine = (side === 1 ? m.a : m.b).ids, opp = (side === 1 ? m.b : m.a).ids;
+          const ra = avg(mine.map((i) => m._rb[i]).filter((v) => v != null)), rb = avg(opp.map((i) => m._rb[i]).filter((v) => v != null));
+          if (rb - ra >= 100) s.giant++;
+        }
+      }
+    });
+    s.peakGain = peak - player.r0;
+    return s;
+  }
+  function earnedFor(pid) { const s = statsFor(pid); return ACH.filter((a) => a.test(s)).map((a) => a.id); }
+  function earned(pids) { const o = {}; pids.forEach((id) => { o[id] = earnedFor(id); }); return o; }
+  function unlocked(pids, before) {
+    const out = [];
+    pids.forEach((id) => {
+      const had = new Set((before && before[id]) || []), p = D().players.find((x) => x.id === id);
+      earnedFor(id).forEach((aid) => { if (!had.has(aid)) { const a = ACH.find((x) => x.id === aid); out.push({ pid: id, player: p ? p.name : '', icon: a.icon, name: a.name }); } });
+    });
+    return out;
+  }
+
+  // ---- profile extras: rating curve + badges
+  function ratingSeries(p) {
+    const pts = [p.r0];
+    D().matches.forEach((m) => { if ((m.a.ids.includes(p.id) || m.b.ids.includes(p.id)) && m._ra && m._ra[p.id] != null) pts.push(m._ra[p.id]); });
+    return pts;
+  }
+  function profileExtras(p) {
+    const pts = ratingSeries(p), wrap = g('profileChart');
+    if (wrap) {
+      if (pts.length < 2) wrap.innerHTML = '<p class="text-[11px] text-slate-500">Play ELO-rated matches to see this rating curve.</p>';
+      else {
+        const W = 300, H = 72, pad = 8; let lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+        if (hi - lo < 20) { lo -= 10; hi += 10; }
+        const xy = pts.map((v, i) => [pad + (i * (W - 2 * pad)) / (pts.length - 1), pad + (H - 2 * pad) * (1 - (v - lo) / (hi - lo))]);
+        const line = xy.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
+        const last = xy[xy.length - 1];
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-[72px]" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="rcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity=".35"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></linearGradient></defs>
+          <polygon points="${pad},${H} ${line} ${last[0].toFixed(1)},${H}" fill="url(#rcg)"/>
+          <polyline points="${line}" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" fill="#fff" stroke="#22d3ee" stroke-width="2"/></svg>
+          <div class="flex justify-between text-[10px] text-slate-500 -mt-0.5"><span>Start ${pts[0]}</span><span>Peak ${Math.max.apply(null, pts)}</span><span>Now ${pts[pts.length - 1]}</span></div>`;
+      }
+    }
+    const box = g('profileBadges'); if (!box) return;
+    const s = statsFor(p.id), got = ACH.filter((a) => a.test(s)).length;
+    g('profileBadgeCount').textContent = `${got}/${ACH.length}`;
+    box.innerHTML = ACH.map((a) => {
+      const ok = a.test(s), pr = !ok && a.prog ? a.prog(s) : null;
+      return `<div class="rounded-xl border p-2 text-center ${ok ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-950 border-slate-800 opacity-60'}" title="${esc(a.desc)}">
+        <div class="text-xl ${ok ? '' : 'grayscale'}">${a.icon}</div>
+        <div class="text-[10px] font-bold mt-0.5 ${ok ? 'text-amber-200' : 'text-slate-400'}">${esc(a.name)}</div>
+        <div class="text-[9px] text-slate-500 leading-tight mt-0.5">${pr ? `${pr[0]}/${pr[1]}` : esc(a.desc)}</div></div>`;
+    }).join('');
+  }
+
+  // =====================================================================
+  //  CLUB TAB
+  // =====================================================================
+  function visible() { const v = g('viewClub'); return v && !v.classList.contains('hidden'); }
+  function playerBy(id) { return D().players.find((p) => p.id === id); }
+
+  function renderClub() {
+    const players = D().players.slice().sort((a, b) => b.rating - a.rating || b.wins - a.wins || a.name.localeCompare(b.name));
+    const matches = D().matches;
+    g('clubSummary').innerHTML = [['Players', players.length], ['Matches', matches.length], ['Games', matches.reduce((s, m) => s + m.gw[0] + m.gw[1], 0)]]
+      .map(([k, v]) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center"><span class="text-[10px] text-slate-400 uppercase block">${k}</span><span class="text-xl font-black text-white">${v}</span></div>`).join('');
+
+    // leaderboard
+    const board = g('clubBoard');
+    if (!players.length) {
+      board.innerHTML = '<p class="text-xs text-slate-400 text-center py-5">No players yet. Add players in the Roster tab, score a few matches and the ranking appears here.</p>';
+    } else {
+      const medal = ['🥇', '🥈', '🥉'];
+      board.innerHTML = players.map((p, i) => {
+        const total = p.wins + p.losses, rate = total ? Math.round((p.wins / total) * 100) : 0;
+        const delta = p.rating - p.r0, dots = p.form.slice(-5).map((r) => `<span class="w-1.5 h-1.5 rounded-full ${r === 'W' ? 'bg-emerald-400' : 'bg-rose-400'}"></span>`).join('');
+        const streak = p.streak >= 2 ? `<span class="text-[10px] font-bold text-emerald-300">🔥W${p.streak}</span>` : '';
+        return `<button type="button" data-open="${esc(p.id)}" class="club-row w-full flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition ${i === 0 && p.mp ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-950 border-slate-800 hover:border-slate-600'}" style="--i:${Math.min(i, 12)}">
+          <span class="w-7 text-center text-sm font-black ${i < 3 ? '' : 'text-slate-500'}">${i < 3 ? medal[i] : i + 1}</span>
+          <span class="w-9 h-9 shrink-0 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 text-white font-black text-xs flex items-center justify-center">${esc(SM().initialsOf(p.name))}</span>
+          <span class="flex-1 min-w-0"><span class="block text-sm font-bold text-white truncate">${esc(p.name)} ${i === 0 && p.mp >= 3 ? '👑' : ''}</span>
+            <span class="flex items-center gap-1.5 text-[10px] text-slate-400"><span>${p.wins}W-${p.losses}L${total ? ' · ' + rate + '%' : ''}</span><span class="flex items-center gap-0.5">${dots}</span>${streak}</span></span>
+          <span class="text-right"><span class="block text-sm font-black text-amber-300">${p.rating}</span>
+            <span class="block text-[10px] font-bold ${delta > 0 ? 'text-emerald-400' : delta < 0 ? 'text-rose-400' : 'text-slate-500'}">${delta > 0 ? '▲' + delta : delta < 0 ? '▼' + -delta : '–'}</span></span></button>`;
+      }).join('');
+    }
+
+    // highlights
+    const cards = [];
+    let upset = null;
+    matches.forEach((m) => {
+      if (!m._elo) return;
+      const win = m.w === 1 ? m.a : m.b, lose = m.w === 1 ? m.b : m.a;
+      const wr = avg(win.ids.map((i) => m._rb[i]).filter((v) => v != null)), lr = avg(lose.ids.map((i) => m._rb[i]).filter((v) => v != null));
+      const gap = lr - wr; if (gap >= 25 && (!upset || gap > upset.gap)) upset = { gap, m, win, lose };
+    });
+    if (upset) cards.push(['🎯', 'Biggest upset', `${(upset.win.names.filter(Boolean).join(' & ')) || upset.win.n} beat a side rated ${Math.round(upset.gap)} higher`, dateTxt(upset.m.ts)]);
+    const pick = (fn, min) => { let b = null; players.forEach((p) => { const v = fn(p); if (v >= min && (!b || v > b.v)) b = { p, v }; }); return b; };
+    const longest = pick((p) => p.best, 2); if (longest) cards.push(['⚡', 'Longest win streak', `${longest.p.name}: ${longest.v} wins in a row`, '']);
+    const hot = pick((p) => p.streak, 2); if (hot) cards.push(['🔥', 'Hottest right now', `${hot.p.name} is on a ${hot.v}-match winning run`, '']);
+    const busy = pick((p) => p.mp, 1); if (busy) cards.push(['🏃', 'Most active', `${busy.p.name} has played ${busy.v} match${busy.v === 1 ? '' : 'es'}`, '']);
+    const rate = pick((p) => (p.wins + p.losses >= 3 ? p.wins / (p.wins + p.losses) : -1), 0.01); if (rate) cards.push(['🎖️', 'Best win rate', `${rate.p.name}: ${Math.round(rate.v * 100)}% (min. 3 matches)`, '']);
+    const climb = pick((p) => p.rating - p.r0, 1); if (climb) cards.push(['🚀', 'Biggest climber', `${climb.p.name} is up ${climb.v} ELO`, '']);
+    g('clubHighlights').innerHTML = cards.length ? cards.map(([ic, t, d, dt]) =>
+      `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-start gap-2.5"><span class="text-xl">${ic}</span><div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${t}</p><p class="text-xs text-slate-200 mt-0.5">${esc(d)}</p>${dt ? `<p class="text-[10px] text-slate-500 mt-0.5">${dt}</p>` : ''}</div></div>`).join('')
+      : '<p class="text-xs text-slate-400 sm:col-span-2 text-center py-3">Score a few matches with registered players and highlights show up here.</p>';
+
+    renderRivalry();
+  }
+
+  // ---- head to head
+  function fillH2hSelects() {
+    ['h2hA', 'h2hB'].forEach((id) => {
+      const sel = g(id), cur = sel.value;
+      sel.textContent = '';
+      const o0 = document.createElement('option'); o0.value = ''; o0.textContent = id === 'h2hA' ? 'Player A…' : 'Player B…'; sel.appendChild(o0);
+      D().players.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach((p) => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+      sel.value = D().players.some((p) => p.id === cur) ? cur : '';
+    });
+  }
+  function h2h(aId, bId) {
+    const r = { aw: 0, bw: 0, ag: 0, bg: 0, ap: 0, bp: 0, list: [] };
+    D().matches.forEach((m) => {
+      const aSide = m.a.ids.includes(aId) ? 1 : (m.b.ids.includes(aId) ? 2 : 0), bSide = m.a.ids.includes(bId) ? 1 : (m.b.ids.includes(bId) ? 2 : 0);
+      if (!aSide || !bSide || aSide === bSide) return;
+      const aWon = m.w === aSide; if (aWon) r.aw++; else r.bw++;
+      r.ag += m.gw[aSide - 1]; r.bg += m.gw[bSide - 1]; r.ap += m.pt[aSide - 1]; r.bp += m.pt[bSide - 1];
+      r.list.push({ ts: m.ts, aWon, ga: m.gw[aSide - 1], gb: m.gw[bSide - 1] });
+    });
+    return r;
+  }
+  function renderRivalry() {
+    fillH2hSelects();
+    const a = g('h2hA').value, b = g('h2hB').value, out = g('h2hResult');
+    if (!a || !b || a === b) out.innerHTML = '<p class="text-[11px] text-slate-500 text-center py-2">Pick two players to compare, or tap a rivalry below.</p>';
+    else {
+      const A = playerBy(a), B = playerBy(b), r = h2h(a, b), n = r.aw + r.bw;
+      if (!n) out.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">${esc(A.name)} and ${esc(B.name)} have not played each other yet.</p>`;
+      else {
+        const pa = Math.round((r.aw / n) * 100);
+        out.innerHTML = `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center justify-between"><span class="text-sm font-bold text-cyan-300 truncate">${esc(A.name)}</span><span class="text-2xl font-black text-white tabular-nums">${r.aw} <span class="text-slate-500">-</span> ${r.bw}</span><span class="text-sm font-bold text-rose-300 truncate text-right">${esc(B.name)}</span></div>
+          <div class="flex h-2 rounded-full overflow-hidden bg-slate-800"><div class="bg-cyan-500" style="width:${pa}%"></div><div class="bg-rose-500 flex-1"></div></div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 text-center"><span>Games ${r.ag}-${r.bg}</span><span>Points ${r.ap}-${r.bp}</span></div>
+          <div class="space-y-1">${r.list.slice(-5).reverse().map((x) => `<div class="flex items-center gap-2 text-[11px] bg-slate-900 rounded-lg px-2 py-1"><span class="w-5 h-5 rounded text-[10px] font-black flex items-center justify-center ${x.aWon ? 'bg-cyan-500/20 text-cyan-300' : 'bg-rose-500/20 text-rose-300'}">${x.aWon ? 'A' : 'B'}</span><span class="flex-1 text-slate-300">${x.aWon ? esc(A.name) : esc(B.name)} won</span><span class="font-mono text-slate-300">${Math.max(x.ga, x.gb)}-${Math.min(x.ga, x.gb)}</span><span class="text-slate-500 w-12 text-right">${dateTxt(x.ts)}</span></div>`).join('')}</div></div>`;
+      }
+    }
+    // top rivalries
+    const pairs = new Map();
+    D().matches.forEach((m) => m.a.ids.forEach((x) => m.b.ids.forEach((y) => {
+      const k = x < y ? x + '|' + y : y + '|' + x; pairs.set(k, (pairs.get(k) || 0) + 1);
+    })));
+    const top = Array.from(pairs).sort((p, q) => q[1] - p[1]).slice(0, 3).filter((x) => playerBy(x[0].split('|')[0]) && playerBy(x[0].split('|')[1]));
+    g('topRivalries').innerHTML = top.length ? '<p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Top rivalries</p>' + top.map(([k, n]) => {
+      const [x, y] = k.split('|'), r = h2h(x, y);
+      return `<button type="button" data-h2h="${x}|${y}" class="w-full flex items-center gap-2 text-xs bg-slate-950 border border-slate-800 hover:border-slate-600 rounded-xl px-3 py-2 transition"><span class="flex-1 text-left text-slate-200 truncate">${esc(playerBy(x).name)} <span class="text-slate-500">vs</span> ${esc(playerBy(y).name)}</span><span class="font-black text-white tabular-nums">${r.aw}-${r.bw}</span><span class="text-slate-500">${n} played</span></button>`;
+    }).join('') : '';
+  }
+
+  function refresh() {
+    updateWinChance();
+    if (visible()) renderClub();
+  }
+
+  // =====================================================================
+  //  WIRING
+  // =====================================================================
+  const _st = window.switchTab;
+  window.switchTab = function (tab) {
+    _st.apply(this, arguments);
+    const v = g('viewClub'), t = g('navTabClub');
+    if (tab === 'club') {
+      ['viewMatch', 'viewSetup', 'viewPlayers', 'viewLiveStream'].forEach((id) => g(id).classList.add('hidden'));
+      v.classList.remove('hidden');
+      t.className = 'nav-tab px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 font-bold transition flex items-center gap-1.5';
+      renderClub();
+    } else {
+      v.classList.add('hidden');
+      t.className = 'nav-tab px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition flex items-center gap-1.5';
+    }
+  };
+  const _usu = window.updateScoreboardUI;
+  window.updateScoreboardUI = function () { const r = _usu.apply(this, arguments); try { updateLiveWin(); } catch (e) {} return r; };
+  // the bar must also move when a game or the match is decided (those happen after the score refresh)
+  ['handleGameWin', 'handleMatchWin'].forEach((fn) => {
+    const orig = window[fn];
+    window[fn] = function () { const r = orig.apply(this, arguments); try { updateLiveWin(); } catch (e) {} return r; };
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    g('navTabClub').addEventListener('click', () => switchTab('club'));
+    g('btnAutoBalance').addEventListener('click', autoBalance);
+    const setup = g('viewSetup');
+    ['click', 'input', 'change'].forEach((ev) => setup.addEventListener(ev, () => setTimeout(() => { updateWinChance(); g('autoBalanceWrap').classList.toggle('hidden', !state.isDoubles); }, 0)));
+    g('clubBoard').addEventListener('click', (e) => { const b = e.target.closest('[data-open]'); if (b) openPlayerProfile(b.dataset.open); });
+    g('topRivalries').addEventListener('click', (e) => { const b = e.target.closest('[data-h2h]'); if (!b) return; const [x, y] = b.dataset.h2h.split('|'); g('h2hA').value = x; g('h2hB').value = y; renderRivalry(); });
+    ['h2hA', 'h2hB'].forEach((id) => g(id).addEventListener('change', renderRivalry));
+    updateWinChance();
+  });
+
+  window.ClubHub = { earned, unlocked, profileExtras, refresh, liveWinPct, updateLiveWin, eloExpectation, matchWin, calibrate, gameWin, statsFor, ACH };
 })();
 
   </script>
@@ -3391,6 +3862,7 @@
         bn: (done || justWon || banner.classList.contains('hidden')) ? '' : banner.textContent.trim(),
         cm: comm,
         fl: s.isFlipped ? 1 : 0,
+        wp: (status === 'live' && window.ClubHub) ? ClubHub.liveWinPct() : null,
         to: live.timeoutLeft
       };
     }

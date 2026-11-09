@@ -69,6 +69,14 @@
   .pop{animation:pop .6s var(--spring)}
   @keyframes pop{0%{transform:scale(.35) rotate(-8deg);opacity:0}60%{transform:scale(1.18) rotate(2deg);opacity:1}100%{transform:none}}
 
+  /* win probability */
+  .wp{display:flex;align-items:center;gap:8px;background:rgba(15,23,42,.8);border:1px solid var(--line);border-radius:16px;padding:8px 12px;font-size:11px;font-weight:800}
+  .wp b{width:36px;font-variant-numeric:tabular-nums;font-weight:900}
+  .wp .nm{max-width:26%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wp .trk{flex:1;height:8px;border-radius:99px;overflow:hidden;background:#1e293b;display:flex}
+  .wp .trk i{display:block;height:100%;background:var(--cy);transition:width .7s var(--ease)}
+  .wp .trk u{display:block;flex:1;background:var(--ro)}
+  .wp.rev,.wp.rev .trk{flex-direction:row-reverse}
   /* teams */
   .teams{position:relative;display:flex;gap:10px;flex:1;min-height:330px}
   .teams.flipped{flex-direction:row-reverse}
@@ -192,6 +200,8 @@
       <span class="banner" id="banner" hidden></span>
     </div>
 
+    <div class="wp" id="wp" hidden><span class="nm" id="wpNA" style="color:var(--cy)"></span><b id="wpPA" style="color:#a5f3fc;text-align:right">50%</b><div class="trk" id="wpTrk"><i id="wpBar" style="width:50%"></i><u></u></div><b id="wpPB" style="color:#fecdd3">50%</b><span class="nm" id="wpNB" style="color:var(--ro)"></span></div>
+
     <div class="teams" id="teams">
       <article class="team t1" id="team1">
         <div>
@@ -314,7 +324,7 @@
       h: arr(m.h).slice(0, 13).map(function (x) { x = arr(x); return [num(x[0]), num(x[1]), num(x[2])]; }),
       gn: num(m.gn, 1), bo: num(m.bo, 3), tg: num(m.tg, 11),
       sv: m.sv === 2 ? 2 : 1, sd: str(m.sd, 60), bn: str(m.bn, 30), cm: str(m.cm, 160),
-      fl: m.fl ? 1 : 0, to: m.to == null ? null : num(m.to)
+      fl: m.fl ? 1 : 0, wp: m.wp == null ? null : num(m.wp), to: m.to == null ? null : num(m.to)
     };
   }
 
@@ -388,6 +398,15 @@
     });
 
     $('commText').textContent = m.cm;
+
+    var wp = $('wp');
+    if (m.st === 'live' && m.wp != null) {
+      wp.hidden = false;
+      $('wpNA').textContent = m.n[0].split(' ')[0]; $('wpNB').textContent = m.n[1].split(' ')[0];
+      $('wpPA').textContent = m.wp + '%'; $('wpPB').textContent = (100 - m.wp) + '%';
+      $('wpBar').style.width = m.wp + '%';
+      wp.classList.toggle('rev', !!m.fl);
+    } else wp.hidden = true;
 
     if (prev && !reduce) {
       if (m.sc[0] !== prev.sc[0]) retrigger($('sc1'), m.sc[0] > prev.sc[0] ? 'up' : 'down');
