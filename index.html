@@ -747,6 +747,11 @@
       </section>
 
       <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="text-sm font-black text-white">📊 Recent matches <span class="text-[10px] font-medium text-slate-500">tap one for its insights</span></h3>
+        <div class="space-y-1.5" id="clubRecent"></div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
         <h3 class="text-sm font-black text-white">⚔️ Head to head</h3>
         <div class="grid grid-cols-2 gap-2">
           <select id="h2hA" class="min-w-0 bg-slate-950 text-cyan-300 text-xs border border-slate-700 rounded-lg px-2 py-2 focus:outline-none"></select>
@@ -998,6 +1003,8 @@
         <p id="summaryCareerNote" class="text-[10px] text-slate-500"></p>
       </div>
 
+      <button type="button" id="btnShowInsights" class="w-full py-2.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-200 text-xs font-bold transition flex items-center justify-center gap-2">📊 Match insights <span class="text-[10px] font-medium text-cyan-300/70">momentum · serve stats · key moments</span></button>
+
       <!-- Action Buttons -->
       <div class="space-y-2 pt-2">
         <button type="button" id="btnCopyScorecard" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition">
@@ -1141,6 +1148,11 @@
         <div class="space-y-1.5" id="profileRecent"></div>
       </div>
 
+      <div id="profileStyleWrap" class="hidden space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Playing style <span id="profileStyleN" class="text-cyan-300 normal-case font-medium ml-1"></span></p>
+        <div class="grid grid-cols-2 gap-2" id="profileStyleStats"></div>
+      </div>
+
       <div class="space-y-1.5">
         <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rating curve</p>
         <div id="profileChart"></div>
@@ -1239,6 +1251,25 @@
           <p>Everything still works: players, matches and stats are saved on this phone. To add Google / email login and cloud backup, follow the one-time setup guide and add your Firebase details.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MATCH INSIGHTS -->
+  <div id="modalInsights" class="hidden fixed inset-0 z-[55] bg-slate-950/90 backdrop-blur-md overflow-y-auto p-4 flex justify-center">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-xl w-full my-auto space-y-4 shadow-2xl relative">
+      <button type="button" id="btnCloseInsights" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="pr-8">
+        <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold">📊 Match insights</span>
+        <h3 class="text-lg font-black text-white mt-1.5" id="insTitle">A vs B</h3>
+        <p class="text-xs text-slate-400" id="insSub"></p>
+      </div>
+      <div id="insChart"></div>
+      <div class="space-y-2" id="insTiles"></div>
+      <div class="space-y-1.5" id="insMoments"></div>
+      <div class="space-y-1.5" id="insGames"></div>
+      <p class="text-[11px] text-slate-500 leading-relaxed" id="insNote"></p>
     </div>
   </div>
 
@@ -2672,7 +2703,7 @@
       r0: p.r0, w0: p.w0 || 0, l0: p.l0 || 0, c: p.c || 0, u: p.u || 0 };
   }
   function stripM(m) {
-    return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, w: m.w, gw: m.gw, pt: m.pt };
+    return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, ev: m.ev || '', w: m.w, gw: m.gw, pt: m.pt };
   }
   function payload() {
     return { v: 2, players: D.players.map(baseOf), deleted: D.deleted.slice(), matches: D.matches.map(stripM) };
@@ -2698,7 +2729,7 @@
       .filter((m) => m && typeof m.id === 'string' && m.a && m.b && (m.w === 1 || m.w === 2))
       .map((m) => ({
         id: str(m.id, 40), ts: +m.ts || 0, dbl: m.dbl ? 1 : 0, tg: num(m.tg, 1, 99, 11), bo: num(m.bo, 1, 9, 3),
-        a: side(m.a), b: side(m.b), g: str(m.g, 200), w: m.w,
+        a: side(m.a), b: side(m.b), g: str(m.g, 200), ev: String(m.ev || '').replace(/[^a-d,]/g, '').slice(0, 1500), w: m.w,
         gw: [num(m.gw && m.gw[0], 0, 9, 0), num(m.gw && m.gw[1], 0, 9, 0)],
         pt: [num(m.pt && m.pt[0], 0, 9999, 0), num(m.pt && m.pt[1], 0, 9999, 0)]
       }));
@@ -2904,14 +2935,15 @@
       const date = new Date(m.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
       const delta = m._elo && m._rb[id] != null ? (m._ra[id] - m._rb[id]) : null;
       const dtxt = delta == null ? '' : `<span class="${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">${delta >= 0 ? '+' : ''}${delta}</span>`;
-      return `<div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px]">
+      return `<div data-mid="${esc(m.id)}" class="cursor-pointer hover:border-slate-600 flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px]">
         <span class="w-5 h-5 rounded text-[10px] font-black flex items-center justify-center ${won ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${won ? 'W' : 'L'}</span>
-        <span class="flex-1 min-w-0 truncate text-slate-200">vs ${esc(oppName)}</span>
+        <span class="flex-1 min-w-0 truncate text-slate-200">vs ${esc(oppName)}${m.ev ? ' <span class="text-[10px]">📊</span>' : ''}</span>
         <span class="font-mono text-slate-300">${gwMine}-${gwOpp}</span>${dtxt}
         <span class="text-slate-500 w-12 text-right">${esc(date)}</span></div>`;
     }).join('') : '<p class="text-[11px] text-slate-500">No matches recorded yet.</p>';
 
     if (window.ClubHub) ClubHub.profileExtras(p);
+    if (window.Insights) Insights.profileExtras(p);
     g('modalPlayerProfile').classList.remove('hidden');
   };
 
@@ -3069,6 +3101,7 @@
       ? { a: [mk('inputA1', state.a1), mk('inputA2', state.a2)], b: [mk('inputB1', state.b1), mk('inputB2', state.b2)] }
       : { a: [mk('inputP1', state.p1Name)], b: [mk('inputP2', state.p2Name)] };
     state.matchStartTs = Date.now(); state.matchRecorded = 0;
+    if (window.Insights) Insights.reset();
     if (window.ClubHub) ClubHub.updateLiveWin();
   };
 
@@ -3088,6 +3121,7 @@
       a: { n: getT1Name(), ids: idsA, names: R.a.map((x) => x.name) },
       b: { n: getT2Name(), ids: idsB, names: R.b.map((x) => x.name) },
       g: state.gamesHistory.map((x) => `${x.t1Score}-${x.t2Score}`).join(','),
+      ev: window.Insights ? Insights.encode() : '',
       w: winnerTeam, gw: [state.gamesWonT1, state.gamesWonT2], pt: [state.t1TotalPts, state.t2TotalPts]
     };
     const allIds = idsA.concat(idsB);
@@ -3696,6 +3730,7 @@
       `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-start gap-2.5"><span class="text-xl">${ic}</span><div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${t}</p><p class="text-xs text-slate-200 mt-0.5">${esc(d)}</p>${dt ? `<p class="text-[10px] text-slate-500 mt-0.5">${dt}</p>` : ''}</div></div>`).join('')
       : '<p class="text-xs text-slate-400 sm:col-span-2 text-center py-3">Score a few matches with registered players and highlights show up here.</p>';
 
+    if (window.Insights) Insights.renderRecent(g('clubRecent'));
     renderRivalry();
   }
 
@@ -3790,6 +3825,253 @@
   });
 
   window.ClubHub = { earned, unlocked, profileExtras, refresh, liveWinPct, updateLiveWin, eloExpectation, matchWin, calibrate, gameWin, statsFor, ACH };
+})();
+
+  </script>
+
+  <!-- MATCH INSIGHTS: point-by-point log, momentum graph, serve stats -->
+  <script>
+(function () {
+  'use strict';
+  const g = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const D = () => window.__SM.D;
+  const dateTxt = (ts) => new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
+  // =====================================================================
+  //  POINT LOG: one character per point, written as the match is scored
+  //    a = team 1 won, team 1 serving     b = team 1 won, team 2 serving
+  //    c = team 2 won, team 1 serving     d = team 2 won, team 2 serving
+  //  games are separated by commas.
+  // =====================================================================
+  const code = (team, srv) => (team === 1 ? (srv === 1 ? 'a' : 'b') : (srv === 1 ? 'c' : 'd'));
+  const decode = (ch) => ({ w: ch <= 'b' ? 1 : 2, s: (ch === 'a' || ch === 'c') ? 1 : 2 });
+
+  function ensure(gi) {
+    if (!Array.isArray(state.pointLog)) state.pointLog = [''];
+    while (state.pointLog.length <= gi) state.pointLog.push('');
+  }
+  function reset() { state.pointLog = ['']; }
+
+  // the point is logged BEFORE it is scored, so the final point is already in the log
+  // when the match is saved at the end of addPointToTeam
+  const _add = window.addPointToTeam;
+  window.addPointToTeam = function (team) {
+    try {
+      if (!state.matchFinished) {
+        const T = state.targetScore, a = state.currentT1Score, b = state.currentT2Score;
+        const decided = (a >= T && a - b >= 2) || (b >= T && b - a >= 2);
+        if (!decided) { const gi = state.currentGameNumber - 1; ensure(gi); state.pointLog[gi] += code(team, getCurrentServerSide()); }
+      }
+    } catch (e) { console.error(e); }
+    return _add.apply(this, arguments);
+  };
+  const _undo = window.undoLastPoint;
+  window.undoLastPoint = function () {
+    try {
+      if (!state.matchFinished && state.pointHistory && state.pointHistory.length > 0) {
+        const gi = state.currentGameNumber - 1; ensure(gi);
+        if (state.pointLog[gi].length) state.pointLog[gi] = state.pointLog[gi].slice(0, -1);
+      }
+    } catch (e) { console.error(e); }
+    return _undo.apply(this, arguments);
+  };
+
+  // the log is only saved if it agrees with the real game scores (otherwise better no insights than wrong ones)
+  function encode() {
+    const done = state.gamesHistory.length, log = (state.pointLog || []).slice(0, done);
+    if (!done || log.length < done) return '';
+    for (let i = 0; i < done; i++) {
+      const s = log[i] || '', a = (s.match(/[ab]/g) || []).length, b = (s.match(/[cd]/g) || []).length, gh = state.gamesHistory[i];
+      if (a !== gh.t1Score || b !== gh.t2Score) return '';
+    }
+    return log.join(',');
+  }
+
+  // =====================================================================
+  //  ANALYSIS
+  // =====================================================================
+  function analyze(rec) {
+    const T = rec.tg || 11;
+    const parts = rec.ev ? rec.ev.split(',').filter((s) => s.length) : [];
+    if (!parts.length) return { has: false };
+    const R = {
+      has: true, T, games: [], tl: [{ d: 0, g: 0 }], tot: [0, 0],
+      sv: [{ p: 0, w: 0 }, { p: 0, w: 0 }], rv: [{ p: 0, w: 0 }, { p: 0, w: 0 }], cl: [{ p: 0, w: 0 }, { p: 0, w: 0 }],
+      run: [{ n: 0, g: 0 }, { n: 0, g: 0 }], lead: [{ n: 0, g: 0 }, { n: 0, g: 0 }], leadChanges: 0, deuceGames: 0, comeback: null, closest: null
+    };
+    let cum = 0;
+    parts.forEach((s, gi) => {
+      let a = 0, b = 0, last = 0, run = 0, prevSign = 0, minD = 0, maxD = 0, deuce = false;
+      const gr = [0, 0];
+      for (const ch of s) {
+        const { w, s: srv } = decode(ch), r = 3 - srv;
+        if (a >= T - 1 || b >= T - 1) { R.cl[0].p++; R.cl[1].p++; R.cl[w - 1].w++; }
+        R.sv[srv - 1].p++; if (w === srv) R.sv[srv - 1].w++;
+        R.rv[r - 1].p++; if (w === r) R.rv[r - 1].w++;
+        if (w === 1) { a++; cum++; } else { b++; cum--; }
+        if (w === last) run++; else { run = 1; last = w; }
+        if (run > gr[w - 1]) gr[w - 1] = run;
+        if (run > R.run[w - 1].n) R.run[w - 1] = { n: run, g: gi + 1 };
+        const d = a - b; minD = Math.min(minD, d); maxD = Math.max(maxD, d);
+        if (d > R.lead[0].n) R.lead[0] = { n: d, g: gi + 1 };
+        if (-d > R.lead[1].n) R.lead[1] = { n: -d, g: gi + 1 };
+        const sign = d > 0 ? 1 : (d < 0 ? -1 : 0);
+        if (sign !== 0) { if (prevSign !== 0 && sign !== prevSign) R.leadChanges++; prevSign = sign; }
+        if (a >= T - 1 && b >= T - 1) deuce = true;
+        R.tl.push({ d: cum, g: gi });
+      }
+      const finished = (a >= T && a - b >= 2) || (b >= T && b - a >= 2), w = finished ? (a > b ? 1 : 2) : 0;
+      R.tot[0] += a; R.tot[1] += b;
+      if (deuce) R.deuceGames++;
+      R.games.push({ a, b, w, run: gr, deuce, finished });
+      if (finished) {
+        const deficit = w === 1 ? -minD : maxD;
+        if (deficit >= 4 && (!R.comeback || deficit > R.comeback.n)) R.comeback = { team: w, n: deficit, g: gi + 1, a, b };
+        const margin = Math.abs(a - b);
+        if (!R.closest || margin < R.closest.margin || (margin === R.closest.margin && a + b > R.closest.a + R.closest.b)) R.closest = { g: gi + 1, a, b, margin };
+      }
+    });
+    return R;
+  }
+
+  // =====================================================================
+  //  RENDERING
+  // =====================================================================
+  function momentumSVG(R) {
+    const W = 320, H = 150, px = 8, top = 22, bot = 8, mid = (top + (H - bot)) / 2;
+    const n = R.tl.length, maxAbs = Math.max(4, ...R.tl.map((p) => Math.abs(p.d)));
+    const X = (i) => px + (i * (W - 2 * px)) / Math.max(1, n - 1), Y = (d) => mid - (d / maxAbs) * (mid - top);
+    const line = R.tl.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.d).toFixed(1)}`).join(' ');
+    const area = `${line} L${X(n - 1).toFixed(1)},${mid} L${X(0).toFixed(1)},${mid} Z`;
+    let dividers = '';
+    R.tl.forEach((p, i) => {
+      if (i > 0 && p.g !== R.tl[i - 1].g) {
+        const x = X(i - 1);
+        dividers += `<line x1="${x.toFixed(1)}" y1="${top - 6}" x2="${x.toFixed(1)}" y2="${H - bot}" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/><text x="${(x + 3).toFixed(1)}" y="${top - 9}" fill="#94a3b8" font-size="9" font-weight="700">G${p.g + 1}</text>`;
+      }
+    });
+    dividers += `<text x="${px + 2}" y="${top - 9}" fill="#94a3b8" font-size="9" font-weight="700">G1</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="w-full" role="img" aria-label="Momentum graph" preserveAspectRatio="none" style="height:150px">
+      <defs><clipPath id="mmP"><rect x="0" y="0" width="${W}" height="${mid}"/></clipPath><clipPath id="mmN"><rect x="0" y="${mid}" width="${W}" height="${H - mid}"/></clipPath></defs>
+      <path d="${area}" fill="#22d3ee" fill-opacity=".28" clip-path="url(#mmP)"/><path d="${area}" fill="#fb7185" fill-opacity=".28" clip-path="url(#mmN)"/>
+      <line x1="${px}" y1="${mid}" x2="${W - px}" y2="${mid}" stroke="#64748b" stroke-width="1"/>${dividers}
+      <path d="${line}" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${X(n - 1).toFixed(1)}" cy="${Y(R.tl[n - 1].d).toFixed(1)}" r="3.5" fill="#fff"/></svg>`;
+  }
+
+  const pct = (x) => (x.p ? Math.round((x.w / x.p) * 100) : 0);
+  function tile(label, aMain, aSub, bMain, bSub, aShare) {
+    const share = Math.max(4, Math.min(96, aShare));
+    return `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+      <div class="flex items-center justify-between gap-2"><div><span class="text-lg font-black text-cyan-300 tabular-nums">${aMain}</span>${aSub ? `<span class="text-[10px] text-slate-500 ml-1">${aSub}</span>` : ''}</div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">${label}</span>
+        <div class="text-right">${bSub ? `<span class="text-[10px] text-slate-500 mr-1">${bSub}</span>` : ''}<span class="text-lg font-black text-rose-300 tabular-nums">${bMain}</span></div></div>
+      <div class="flex h-1.5 rounded-full overflow-hidden bg-slate-800 mt-1.5"><div class="bg-cyan-500" style="width:${share}%"></div><div class="bg-rose-500 flex-1"></div></div></div>`;
+  }
+  const share = (a, b) => (a + b ? (a / (a + b)) * 100 : 50);
+
+  function render(rec) {
+    const R = analyze(rec), A = rec.a.n || 'Team A', B = rec.b.n || 'Team B';
+    const gw = rec.gw || [0, 0];
+    g('insTitle').textContent = `${A} vs ${B}`;
+    g('insSub').textContent = (rec.w ? `${rec.w === 1 ? A : B} won ${Math.max(gw[0], gw[1])}-${Math.min(gw[0], gw[1])}` : 'Match in progress') + ` · ${rec.tg || 11} pts · Best of ${rec.bo || 3}` + (rec.ts && rec.id !== 'live' ? ` · ${dateTxt(rec.ts)}` : '');
+    const chart = g('insChart'), tiles = g('insTiles'), moments = g('insMoments'), games = g('insGames'), note = g('insNote');
+    const gamesFromScores = (rec.g ? rec.g.split(',') : []).map((x) => x.split('-').map(Number));
+
+    if (!R.has) {
+      chart.innerHTML = ''; tiles.innerHTML = ''; moments.innerHTML = '';
+      games.innerHTML = gamesFromScores.map((x, i) => `<div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs"><span class="text-slate-300 font-medium">Game ${i + 1}</span><span class="font-mono"><span class="${x[0] > x[1] ? 'text-cyan-300 font-bold' : 'text-slate-400'}">${x[0]}</span> - <span class="${x[1] > x[0] ? 'text-rose-300 font-bold' : 'text-slate-400'}">${x[1]}</span></span></div>`).join('');
+      note.textContent = 'Point-by-point was not recorded for this match. Matches scored from now on get the full momentum graph and stats.';
+      g('modalInsights').classList.remove('hidden'); return;
+    }
+
+    chart.innerHTML = `<div class="flex items-center justify-between text-[10px] font-bold mb-1"><span class="text-cyan-300">▲ ${esc(A)} ahead</span><span class="text-slate-500 uppercase tracking-wider">Momentum</span><span class="text-rose-300">${esc(B)} ahead ▼</span></div>
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-2">${momentumSVG(R)}</div>`;
+
+    const t = [];
+    t.push(tile('Points won', R.tot[0], '', R.tot[1], '', share(R.tot[0], R.tot[1])));
+    t.push(tile('Won on own serve', pct(R.sv[0]) + '%', `${R.sv[0].w}/${R.sv[0].p}`, pct(R.sv[1]) + '%', `${R.sv[1].w}/${R.sv[1].p}`, share(pct(R.sv[0]), pct(R.sv[1]))));
+    t.push(tile('Won receiving', pct(R.rv[0]) + '%', `${R.rv[0].w}/${R.rv[0].p}`, pct(R.rv[1]) + '%', `${R.rv[1].w}/${R.rv[1].p}`, share(pct(R.rv[0]), pct(R.rv[1]))));
+    t.push(tile('Pressure points', R.cl[0].p ? `${R.cl[0].w}/${R.cl[0].p}` : '-', '', R.cl[1].p ? `${R.cl[1].w}/${R.cl[1].p}` : '-', '', share(R.cl[0].w, R.cl[1].w)));
+    t.push(tile('Longest run', R.run[0].n, `G${R.run[0].g}`, R.run[1].n, `G${R.run[1].g}`, share(R.run[0].n, R.run[1].n)));
+    tiles.innerHTML = t.join('');
+
+    const m = [];
+    const bestRun = R.run[0].n >= R.run[1].n ? { t: 0, ...R.run[0] } : { t: 1, ...R.run[1] };
+    if (bestRun.n >= 3) m.push(['🔥', 'Longest run', `${esc(bestRun.t ? B : A)} won ${bestRun.n} points in a row in Game ${bestRun.g}`]);
+    if (R.comeback) m.push(['💪', 'Biggest comeback', `${esc(R.comeback.team === 1 ? A : B)} came back from ${R.comeback.n} points down to win Game ${R.comeback.g} (${R.comeback.a}-${R.comeback.b})`]);
+    if (R.closest && R.closest.margin <= 2) m.push(['😬', 'Closest game', `Game ${R.closest.g} finished ${R.closest.a}-${R.closest.b}${R.games[R.closest.g - 1].deuce ? ' after deuce' : ''}`]);
+    if (R.leadChanges >= 2) m.push(['🔄', 'Lead changes', `The lead changed hands ${R.leadChanges} times`]);
+    if (R.deuceGames) m.push(['⚔️', 'Deuce', `${R.deuceGames} game${R.deuceGames > 1 ? 's' : ''} went to deuce`]);
+    moments.innerHTML = m.length ? '<p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Key moments</p>' + m.map(([ic, t1, d]) =>
+      `<div class="flex items-start gap-2.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2"><span class="text-lg">${ic}</span><div><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${t1}</p><p class="text-xs text-slate-200">${d}</p></div></div>`).join('') : '';
+
+    games.innerHTML = '<p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Game by game</p>' + R.games.map((x, i) =>
+      `<div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs"><span class="text-slate-300 font-medium w-14">Game ${i + 1}</span>
+        <span class="font-mono"><span class="${x.w === 1 ? 'text-cyan-300 font-bold' : 'text-slate-400'}">${x.a}</span> - <span class="${x.w === 2 ? 'text-rose-300 font-bold' : 'text-slate-400'}">${x.b}</span></span>
+        <span class="flex-1 text-right text-[10px] text-slate-500">runs ${x.run[0]}/${x.run[1]}${x.deuce ? ' · deuce' : ''}${x.finished ? '' : ' · in progress'}</span></div>`).join('');
+    note.textContent = '';
+    g('modalInsights').classList.remove('hidden');
+  }
+
+  // ---- where insights open from
+  function currentRec() {
+    const log = (state.pointLog || []).filter((s) => s.length);
+    const gs = log.map((s) => `${(s.match(/[ab]/g) || []).length}-${(s.match(/[cd]/g) || []).length}`).join(',');
+    const names = (t) => t.map((x) => x.name).filter(Boolean);
+    const R = state.matchRoster;
+    return {
+      id: 'live', ts: Date.now(), tg: state.targetScore, bo: state.seriesLength, ev: log.join(','), g: gs,
+      a: { n: getT1Name(), names: R ? names(R.a) : [] }, b: { n: getT2Name(), names: R ? names(R.b) : [] },
+      w: state.matchFinished ? (state.gamesWonT1 > state.gamesWonT2 ? 1 : 2) : 0, gw: [state.gamesWonT1, state.gamesWonT2]
+    };
+  }
+  function openCurrent() { render(currentRec()); }
+  function openById(id) { const m = D().matches.find((x) => x.id === id); if (m) render(m); }
+
+  function renderRecent(el) {
+    if (!el) return;
+    const list = D().matches.slice(-6).reverse();
+    if (!list.length) { el.innerHTML = '<p class="text-xs text-slate-400 text-center py-3">Matches with registered players appear here. Tap one for its momentum graph and stats.</p>'; return; }
+    el.innerHTML = list.map((m) => {
+      const aw = m.w === 1;
+      return `<button type="button" data-mid="${esc(m.id)}" class="w-full flex items-center gap-2 text-left bg-slate-950 border border-slate-800 hover:border-slate-600 rounded-xl px-3 py-2 text-xs transition">
+        <span class="flex-1 min-w-0 truncate ${aw ? 'text-white font-bold' : 'text-slate-400'}">${esc(m.a.names.filter(Boolean).join(' & ') || m.a.n)}</span>
+        <span class="font-mono font-black text-white shrink-0">${m.gw[0]}-${m.gw[1]}</span>
+        <span class="flex-1 min-w-0 truncate text-right ${!aw ? 'text-white font-bold' : 'text-slate-400'}">${esc(m.b.names.filter(Boolean).join(' & ') || m.b.n)}</span>
+        <span class="shrink-0 text-[10px] text-slate-500 w-12 text-right">${m.ev ? '📊 ' : ''}${dateTxt(m.ts)}</span></button>`;
+    }).join('');
+  }
+
+  // ---- player career insights (from every match that has a point log)
+  function profileExtras(p) {
+    const wrap = g('profileStyleWrap'); if (!wrap) return;
+    const o = { n: 0, sv: { p: 0, w: 0 }, rv: { p: 0, w: 0 }, cl: { p: 0, w: 0 }, run: 0 };
+    D().matches.forEach((m) => {
+      const side = m.a.ids.includes(p.id) ? 1 : (m.b.ids.includes(p.id) ? 2 : 0);
+      if (!side || !m.ev) return;
+      const R = analyze(m); if (!R.has) return;
+      o.n++; const i = side - 1;
+      o.sv.p += R.sv[i].p; o.sv.w += R.sv[i].w; o.rv.p += R.rv[i].p; o.rv.w += R.rv[i].w; o.cl.p += R.cl[i].p; o.cl.w += R.cl[i].w; o.run = Math.max(o.run, R.run[i].n);
+    });
+    wrap.classList.toggle('hidden', !o.n);
+    if (!o.n) return;
+    g('profileStyleN').textContent = `from ${o.n} tracked match${o.n > 1 ? 'es' : ''}`;
+    const cell = (k, v, sub) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5"><span class="text-[9px] text-slate-400 block uppercase">${k}</span><span class="font-black text-white text-base tabular-nums">${v}</span><span class="text-[10px] text-slate-500 ml-1">${sub}</span></div>`;
+    g('profileStyleStats').innerHTML =
+      cell('Wins own serve', o.sv.p ? pct(o.sv) + '%' : '-', `${o.sv.w}/${o.sv.p}`) + cell('Wins receiving', o.rv.p ? pct(o.rv) + '%' : '-', `${o.rv.w}/${o.rv.p}`) +
+      cell('Pressure points', o.cl.p ? pct(o.cl) + '%' : '-', `${o.cl.w}/${o.cl.p}`) + cell('Longest run', o.run, 'points');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    g('btnCloseInsights').addEventListener('click', () => g('modalInsights').classList.add('hidden'));
+    g('btnShowInsights').addEventListener('click', openCurrent);
+    g('clubRecent').addEventListener('click', (e) => { const b = e.target.closest('[data-mid]'); if (b) openById(b.dataset.mid); });
+    g('profileRecent').addEventListener('click', (e) => { const b = e.target.closest('[data-mid]'); if (b) openById(b.dataset.mid); });
+  });
+
+  window.Insights = { encode, reset, analyze, openCurrent, openById, renderRecent, profileExtras, decode, code };
 })();
 
   </script>
