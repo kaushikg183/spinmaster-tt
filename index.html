@@ -88,7 +88,7 @@
     @keyframes logoFloat { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-7deg); } }
 
     /* ---- view transitions (replay every time a view goes display:none -> shown) ---- */
-    #viewSetup, #viewMatch, #viewPlayers, #viewLiveStream, #viewClub { animation: viewIn .45s var(--ease-out) backwards; }
+    #viewSetup, #viewMatch, #viewPlayers, #viewLiveStream, #viewClub, #viewTour { animation: viewIn .45s var(--ease-out) backwards; }
     #viewSetup > * { animation: viewIn .55s var(--ease-out) backwards; }
     #viewSetup > *:nth-child(1) { animation-delay: .05s; }
     #viewSetup > *:nth-child(2) { animation-delay: .11s; }
@@ -224,6 +224,9 @@
       #navTabClub { flex: 1; justify-content: center; padding-top: 8px; padding-bottom: 8px; }
       header nav .nav-tab { padding-left: 6px; padding-right: 6px; }
     }
+
+    #viewTour > * { animation: viewIn .5s var(--ease-out) backwards; }
+    #viewTour > *:nth-child(2) { animation-delay: .08s; } #viewTour > *:nth-child(3) { animation-delay: .16s; }
 
     /* ---- respect "remove animations" ---- */
     @media (prefers-reduced-motion: reduce) {
@@ -737,6 +740,14 @@
       </div>
 
       <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-black text-white">🏟️ Tournaments</h3>
+          <button type="button" id="btnNewTour" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow transition">+ New</button>
+        </div>
+        <div class="space-y-1.5" id="clubTours"></div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
         <h3 class="text-sm font-black text-white">🏆 Leaderboard <span class="text-[10px] font-medium text-slate-500">ranked by ELO · tap a player for their profile</span></h3>
         <div class="space-y-1.5" id="clubBoard"></div>
       </section>
@@ -760,6 +771,34 @@
         <div id="h2hResult"></div>
         <div class="space-y-1.5" id="topRivalries"></div>
       </section>
+    </div>
+
+    <!-- VIEW: TOURNAMENT -->
+    <div id="viewTour" class="hidden flex-1 flex flex-col space-y-4 max-w-3xl mx-auto w-full">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <button type="button" id="btnTourBack" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold">← Club</button>
+          <button type="button" id="btnTourDelete" class="px-3 py-1.5 rounded-lg bg-rose-950/50 border border-rose-800/50 text-rose-300 text-xs font-semibold">Delete</button>
+        </div>
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 text-xs font-bold">🏟️ Tournament</span>
+          <h2 class="text-xl sm:text-2xl font-black text-white mt-1.5" id="tourName">Tournament</h2>
+          <p class="text-xs text-slate-400" id="tourMeta"></p>
+        </div>
+        <div class="space-y-1">
+          <div class="text-[11px] text-slate-400" id="tourProgText"></div>
+          <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="tourProgBar" class="h-full bg-purple-500 rounded-full transition-all duration-700" style="width:0%"></div></div>
+        </div>
+        <div id="tourChamp" class="hidden flex items-center gap-3 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3"></div>
+      </div>
+      <div id="tourNext" class="space-y-1.5"></div>
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <button type="button" id="tourTabFix" class="flex-1 py-1.5 rounded-lg font-bold bg-orange-500/20 text-orange-300 text-center">Fixtures</button>
+          <button type="button" id="tourTabMain" class="flex-1 py-1.5 rounded-lg text-slate-400 font-medium text-center">Bracket</button>
+        </div>
+        <div id="tourBody" class="space-y-3"></div>
+      </div>
     </div>
 
     <!-- VIEW: LIVE STREAM / TV BROADCAST & SPECTATOR HUB -->
@@ -1002,6 +1041,8 @@
         <div id="summaryCareerBadges" class="space-y-1.5"></div>
         <p id="summaryCareerNote" class="text-[10px] text-slate-500"></p>
       </div>
+
+      <div id="summaryTour" class="hidden bg-purple-500/10 border border-purple-500/30 rounded-2xl p-3 space-y-1.5"></div>
 
       <button type="button" id="btnShowInsights" class="w-full py-2.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-200 text-xs font-bold transition flex items-center justify-center gap-2">📊 Match insights <span class="text-[10px] font-medium text-cyan-300/70">momentum · serve stats · key moments</span></button>
 
@@ -1251,6 +1292,47 @@
           <p>Everything still works: players, matches and stats are saved on this phone. To add Google / email login and cloud backup, follow the one-time setup guide and add your Firebase details.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW TOURNAMENT -->
+  <div id="modalNewTour" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm overflow-y-auto p-4 flex justify-center">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-md w-full my-auto space-y-4 shadow-2xl relative">
+      <button type="button" id="btnCloseNewTour" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="pr-8"><h3 class="text-lg font-black text-white">New tournament</h3><p class="text-xs text-slate-400">Pick the format, then who is playing. Fixtures are made for you.</p></div>
+
+      <div><label class="block text-xs font-semibold text-slate-300 mb-1">Name</label>
+        <input type="text" id="tourInputName" maxlength="40" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500"></div>
+
+      <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-300">Format</label>
+        <div class="grid grid-cols-2 gap-2" id="tourFormatGroup"><button type="button" data-fmt="ko">Knockout</button><button type="button" data-fmt="rr">Round-robin</button></div></div>
+      <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-300">Players</label>
+        <div class="grid grid-cols-2 gap-2" id="tourModeGroup"><button type="button" data-dbl="0">Singles</button><button type="button" data-dbl="1">Doubles</button></div></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-300">Points per game</label>
+          <div class="grid grid-cols-2 gap-2" id="tourPtsGroup"><button type="button" data-tg="11">11</button><button type="button" data-tg="21">21</button></div></div>
+        <div class="space-y-1.5"><label class="block text-xs font-semibold text-slate-300">Match length</label>
+          <div class="grid grid-cols-3 gap-1.5" id="tourBoGroup"><button type="button" data-bo="1">1</button><button type="button" data-bo="3">3</button><button type="button" data-bo="5">5</button></div></div>
+      </div>
+      <div><label class="block text-xs font-semibold text-slate-300 mb-1">Draw</label>
+        <select id="tourSeed" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"><option value="elo">Seeded by ELO (best players meet late)</option><option value="random">Random draw</option></select></div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between"><label class="text-xs font-semibold text-slate-300">Choose players</label><span id="tourSelCount" class="text-[11px] font-bold text-purple-300">0 selected</span></div>
+        <div class="flex gap-2"><button type="button" id="tourSelAll" class="px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 font-semibold">Select all</button><button type="button" id="tourSelNone" class="px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 font-semibold">Clear</button></div>
+        <div id="tourPlayers" class="max-h-56 overflow-y-auto space-y-1.5"></div>
+      </div>
+
+      <div id="tourTeamsWrap" class="hidden space-y-2">
+        <div class="flex items-center justify-between"><label class="text-xs font-semibold text-slate-300">Teams</label>
+          <span class="flex gap-1.5"><button type="button" id="tourTeamsBal" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 font-semibold">⚖️ Balanced</button><button type="button" id="tourTeamsRand" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 font-semibold">🎲 Shuffle</button></span></div>
+        <div id="tourTeams" class="space-y-1.5"></div>
+      </div>
+
+      <p id="tourHint" class="text-[11px] text-slate-500"></p>
+      <button type="button" id="btnCreateTour" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-500/20 transition">Create tournament</button>
     </div>
   </div>
 
@@ -2693,7 +2775,7 @@
   const num = (x, lo, hi, d) => { x = +x; if (!isFinite(x)) return d; return Math.min(hi, Math.max(lo, x)); };
   const toast = (m) => { try { showToast(m); } catch (e) {} };
 
-  const D = { ns: 'guest', players: [], deleted: [], matches: [] };
+  const D = { ns: 'guest', players: [], deleted: [], matches: [], tournaments: [] };
   Object.defineProperty(state, 'playersList', { get: () => D.players, configurable: true });
 
   const key = () => KEYP + D.ns;
@@ -2706,7 +2788,21 @@
     return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, ev: m.ev || '', w: m.w, gw: m.gw, pt: m.pt };
   }
   function payload() {
-    return { v: 2, players: D.players.map(baseOf), deleted: D.deleted.slice(), matches: D.matches.map(stripM) };
+    return { v: 2, players: D.players.map(baseOf), deleted: D.deleted.slice(), matches: D.matches.map(stripM), tournaments: D.tournaments.map(cleanTournament).filter(Boolean) };
+  }
+
+  function cleanTournament(t) {
+    if (!t || typeof t.id !== 'string' || !Array.isArray(t.entries) || !Array.isArray(t.fixtures)) return null;
+    const entries = t.entries.slice(0, 32).map((e) => ({ id: str(e && e.id, 12), name: str(e && e.name, 40), pids: (e && Array.isArray(e.pids) ? e.pids : []).slice(0, 2).map((x) => str(x, 40)) })).filter((e) => e.id);
+    const ids = new Set(entries.map((e) => e.id));
+    const fixtures = t.fixtures.slice(0, 200).map((f) => ({
+      id: str(f && f.id, 16), r: num(f && f.r, 1, 60, 1), i: num(f && f.i, 0, 300, 0),
+      a: f && ids.has(f.a) ? f.a : '', b: f && ids.has(f.b) ? f.b : '', w: f && (f.w === 1 || f.w === 2) ? f.w : 0,
+      gw: [num(f && f.gw && f.gw[0], 0, 9, 0), num(f && f.gw && f.gw[1], 0, 9, 0)], pt: [num(f && f.pt && f.pt[0], 0, 9999, 0), num(f && f.pt && f.pt[1], 0, 9999, 0)],
+      mid: str(f && f.mid, 40), bye: f && f.bye ? 1 : 0, wo: f && f.wo ? 1 : 0
+    })).filter((f) => f.id);
+    return { id: str(t.id, 40), name: str(t.name, 40).trim() || 'Tournament', ts: +t.ts || 0, u: +t.u || 0, type: t.type === 'rr' ? 'rr' : 'ko', dbl: t.dbl ? 1 : 0,
+      tg: num(t.tg, 1, 99, 11), bo: num(t.bo, 1, 9, 3), status: t.status === 'done' ? 'done' : 'active', champ: ids.has(t.champ) ? t.champ : '', entries, fixtures };
   }
 
   function sanitize(d) {
@@ -2733,7 +2829,8 @@
         gw: [num(m.gw && m.gw[0], 0, 9, 0), num(m.gw && m.gw[1], 0, 9, 0)],
         pt: [num(m.pt && m.pt[0], 0, 9999, 0), num(m.pt && m.pt[1], 0, 9999, 0)]
       }));
-    return { players, deleted, matches };
+    const tournaments = (Array.isArray(d.tournaments) ? d.tournaments : []).map(cleanTournament).filter(Boolean).slice(0, 40);
+    return { players, deleted, matches, tournaments };
   }
 
   // union merge: newest edit of a player wins, deletions are remembered, matches are only ever added
@@ -2750,7 +2847,12 @@
     const mm = new Map();
     L.matches.concat(R.matches).forEach((m) => { if (!mm.has(m.id)) mm.set(m.id, m); });
     const matches = Array.from(mm.values()).sort((a, b) => a.ts - b.ts || (a.id < b.id ? -1 : 1)).slice(-MAX_MATCHES);
-    return { v: 2, players, deleted, matches };
+    const tm = new Map();
+    L.tournaments.concat(R.tournaments).forEach((t) => { const e = tm.get(t.id); if (!e || t.u > e.u) tm.set(t.id, t); });
+    const tournaments = [];
+    tm.forEach((t, id) => { const tb = tomb.get(id); if (tb && tb >= t.u) return; tournaments.push(t); });
+    tournaments.sort((a, b) => (a.id < b.id ? -1 : 1));
+    return { v: 2, players, deleted, matches, tournaments };
   }
 
   function migrateV1() {
@@ -2770,7 +2872,7 @@
     if (!data && ns === 'guest') data = migrateV1();
     return sanitize(data);
   }
-  function setData(d) { D.players = d.players; D.deleted = d.deleted; D.matches = d.matches; recompute(); }
+  function setData(d) { D.players = d.players; D.deleted = d.deleted; D.matches = d.matches; D.tournaments = d.tournaments || []; recompute(); }
   function loadNs(ns) { D.ns = ns; setData(readNs(ns)); }
   function saveLocal() { ls(key(), JSON.stringify(payload())); }
 
@@ -3115,6 +3217,7 @@
     const R = state.matchRoster;
     const known = (t) => t.filter((x) => x.pid && D.players.some((p) => p.id === x.pid)).map((x) => x.pid);
     const idsA = known(R.a), idsB = known(R.b);
+    state.lastRecordedMatchId = '';
     if (!idsA.length && !idsB.length) { renderCareer(null); return; }
     const m = {
       id: newId('m_'), ts: Date.now(), dbl: state.isDoubles ? 1 : 0, tg: state.targetScore, bo: state.seriesLength,
@@ -3127,6 +3230,7 @@
     const allIds = idsA.concat(idsB);
     const before = window.ClubHub ? ClubHub.earned(allIds) : null;
     D.matches.push(m);
+    state.lastRecordedMatchId = m.id;
     commit();
     const won = window.ClubHub ? ClubHub.unlocked(allIds, before) : [];
     renderCareer(m, won);
@@ -3453,7 +3557,7 @@
   };
 
   // expose for tests / debugging
-  window.__SM = { D, Cloud, mergeData, sanitize, payload, recompute, commit, slotPid, SLOTS, refreshSlotSelects, initialsOf };
+  window.__SM = { D, Cloud, mergeData, sanitize, payload, recompute, commit, slotPid, SLOTS, refreshSlotSelects, initialsOf, confirmDialog, cleanTournament };
 })();
 
   </script>
@@ -3597,6 +3701,7 @@
     { id: 'comeback', icon: '🔄', name: 'Comeback', desc: 'Win a match after losing the first game', test: (s) => s.comeback >= 1 },
     { id: 'escape', icon: '🧗', name: 'Great Escape', desc: 'Win a best-of-5 or longer from 0-2 down', test: (s) => s.escape >= 1 },
     { id: 'duo', icon: '🤝', name: 'Team Player', desc: 'Win a doubles match', test: (s) => s.dblWins >= 1 },
+    { id: 'champ', icon: '🏟️', name: 'Tournament Champion', desc: 'Win a tournament', test: (s) => s.titles >= 1 },
     { id: 'rising', icon: '🚀', name: 'Rising Star', desc: 'Climb 50 ELO above your start', test: (s) => s.peakGain >= 50, prog: (s) => [Math.max(0, s.peakGain), 50] }
   ];
 
@@ -3604,7 +3709,8 @@
 
   function statsFor(pid) {
     const player = D().players.find((p) => p.id === pid);
-    const s = { mp: 0, wins: 0, best: 0, run: 0, sweeps: 0, perfect: 0, giant: 0, comeback: 0, escape: 0, dblWins: 0, peakGain: 0 };
+    const s = { mp: 0, wins: 0, best: 0, run: 0, sweeps: 0, perfect: 0, giant: 0, comeback: 0, escape: 0, dblWins: 0, peakGain: 0, titles: 0 };
+    s.titles = (D().tournaments || []).filter((t) => t.status === 'done' && t.champ && (t.entries.find((e) => e.id === t.champ) || { pids: [] }).pids.includes(pid)).length;
     if (!player) return s;
     let peak = player.r0;
     D().matches.forEach((m) => {
@@ -3731,6 +3837,7 @@
       : '<p class="text-xs text-slate-400 sm:col-span-2 text-center py-3">Score a few matches with registered players and highlights show up here.</p>';
 
     if (window.Insights) Insights.renderRecent(g('clubRecent'));
+    if (window.Tournament) Tournament.renderList(g('clubTours'));
     renderRivalry();
   }
 
@@ -4072,6 +4179,417 @@
   });
 
   window.Insights = { encode, reset, analyze, openCurrent, openById, renderRecent, profileExtras, decode, code };
+})();
+
+  </script>
+
+  <!-- TOURNAMENTS: knockout + round-robin, fixtures, standings -->
+  <script>
+(function () {
+  'use strict';
+  const g = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const D = () => window.__SM.D;
+  const toast = (m) => { try { showToast(m); } catch (e) {} };
+  const first = (n) => String(n || '').trim().split(/\s+/)[0] || '';
+  const avg = (a) => a.reduce((s, x) => s + x, 0) / (a.length || 1);
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const MAX = { ko: 32, rr: 16 };
+
+  let curId = null, view = 'fix', openWo = null;
+
+  // =====================================================================
+  //  ENGINE
+  // =====================================================================
+  const player = (pid) => D().players.find((p) => p.id === pid);
+  const entryOf = (t, id) => t.entries.find((e) => e.id === id) || null;
+  const entryRating = (e) => avg(e.pids.map((pid) => { const p = player(pid); return p ? p.rating : 1500; })) || 1500;
+  const fixAt = (t, r, i) => t.fixtures.find((f) => f.r === r && f.i === i);
+  const totalRounds = (t) => (t.type === 'ko' ? Math.max.apply(null, t.fixtures.map((f) => f.r)) : 0);
+  const winnerId = (f) => (f.w === 1 ? f.a : (f.w === 2 ? f.b : ''));
+  const needWins = (t) => Math.ceil(t.bo / 2);
+
+  function roundName(t, r) {
+    if (t.type === 'rr') return 'Round ' + r;
+    const R = totalRounds(t);
+    if (r === R) return 'Final'; if (r === R - 1) return 'Semi-finals'; if (r === R - 2) return 'Quarter-finals';
+    return 'Round of ' + Math.pow(2, R - r + 1);
+  }
+
+  // standard seeding: 1 meets the lowest seed, 1 and 2 can only meet in the final
+  function seedOrder(size) {
+    let o = [1, 2];
+    while (o.length < size) { const n = o.length * 2, next = []; o.forEach((x) => { next.push(x); next.push(n + 1 - x); }); o = next; }
+    return o;
+  }
+  const newFix = (r, i) => ({ id: `f${r}_${i}`, r, i, a: '', b: '', w: 0, gw: [0, 0], pt: [0, 0], mid: '', bye: 0, wo: 0 });
+
+  function buildKO(sorted) {
+    let size = 1; while (size < sorted.length) size *= 2;
+    const R = Math.round(Math.log2(size)), slots = seedOrder(size).map((s) => sorted[s - 1] || null), fixtures = [];
+    for (let r = 1; r <= R; r++) for (let i = 0; i < size / Math.pow(2, r); i++) fixtures.push(newFix(r, i));
+    for (let i = 0; i < size / 2; i++) {
+      const f = fixtures.find((x) => x.r === 1 && x.i === i), A = slots[2 * i], B = slots[2 * i + 1];
+      f.a = A ? A.id : ''; f.b = B ? B.id : '';
+    }
+    return fixtures;
+  }
+  function buildRR(sorted) {
+    const ids = sorted.map((e) => e.id); if (ids.length % 2) ids.push(null);
+    const n = ids.length, fixtures = []; let arr = ids.slice();
+    for (let r = 1; r < n; r++) {
+      for (let i = 0; i < n / 2; i++) { const a = arr[i], b = arr[n - 1 - i]; if (a && b) { const f = newFix(r, i); f.a = a; f.b = b; fixtures.push(f); } }
+      arr = [arr[0], arr[n - 1]].concat(arr.slice(1, n - 1));
+    }
+    return fixtures;
+  }
+
+  function advanceFrom(t, f) {
+    if (t.type !== 'ko') return;
+    const win = winnerId(f), R = totalRounds(t);
+    if (!win || f.r >= R) return;
+    const nf = fixAt(t, f.r + 1, f.i >> 1); if (!nf) return;
+    if (f.i % 2 === 0) nf.a = win; else nf.b = win;
+  }
+  function resolveByes(t) {
+    t.fixtures.filter((f) => f.r === 1).forEach((f) => { if (!!f.a !== !!f.b) { f.bye = 1; f.w = f.a ? 1 : 2; advanceFrom(t, f); } });
+  }
+
+  function standings(t) {
+    const rows = new Map(t.entries.map((e) => [e.id, { e, p: 0, w: 0, l: 0, gw: 0, gl: 0, pw: 0, pl: 0 }]));
+    t.fixtures.forEach((f) => {
+      if (!f.w || f.bye) return;
+      const A = rows.get(f.a), B = rows.get(f.b); if (!A || !B) return;
+      A.p++; B.p++;
+      if (f.w === 1) { A.w++; B.l++; } else { B.w++; A.l++; }
+      A.gw += f.gw[0]; A.gl += f.gw[1]; B.gw += f.gw[1]; B.gl += f.gw[0];
+      A.pw += f.pt[0]; A.pl += f.pt[1]; B.pw += f.pt[1]; B.pl += f.pt[0];
+    });
+    return Array.from(rows.values()).sort((x, y) => y.w - x.w || (y.gw - y.gl) - (x.gw - x.gl) || (y.pw - y.pl) - (x.pw - x.pl) || entryRating(y.e) - entryRating(x.e));
+  }
+
+  function finalize(t) {
+    if (t.type === 'ko') {
+      const fin = fixAt(t, totalRounds(t), 0);
+      if (fin && fin.w) { t.status = 'done'; t.champ = winnerId(fin); }
+    } else if (t.fixtures.length && t.fixtures.every((f) => f.w)) { t.status = 'done'; t.champ = standings(t)[0].e.id; }
+  }
+  function applyResult(t, f, w, info) {
+    f.w = w; f.gw = info.gw; f.pt = info.pt; f.mid = info.mid || ''; f.wo = info.wo ? 1 : 0;
+    advanceFrom(t, f); finalize(t); t.u = Date.now();
+  }
+
+  function playable(t) { return t.fixtures.filter((f) => f.a && f.b && !f.w && !f.bye).sort((x, y) => x.r - y.r || x.i - y.i); }
+  function progress(t) { const real = t.fixtures.filter((f) => !f.bye); return [real.filter((f) => f.w).length, real.length]; }
+
+  function createTournament(o) {
+    const entries = o.entries.map((e, i) => ({ id: 'e' + (i + 1), name: e.name, pids: e.pids }));
+    const now = Date.now();
+    const t = { id: 't_' + now.toString(36) + Math.random().toString(36).slice(2, 5), name: o.name, ts: now, u: now, type: o.type, dbl: o.dbl ? 1 : 0, tg: o.tg, bo: o.bo, status: 'active', champ: '', entries, fixtures: [] };
+    const sorted = o.seed === 'random' ? shuffle(entries.slice()) : entries.slice().sort((a, b) => entryRating(b) - entryRating(a));
+    t.fixtures = o.type === 'ko' ? buildKO(sorted) : buildRR(sorted);
+    if (o.type === 'ko') resolveByes(t);
+    finalize(t);
+    return t;
+  }
+
+  function makeTeams(pids, mode) {
+    let list = pids.map(player).filter(Boolean);
+    const teams = [];
+    if (mode === 'random') { list = shuffle(list.slice()); for (let i = 0; i + 1 < list.length; i += 2) teams.push([list[i], list[i + 1]]); }
+    else { list.sort((a, b) => b.rating - a.rating); for (let i = 0; i < list.length / 2; i++) teams.push([list[i], list[list.length - 1 - i]]); }
+    return teams;
+  }
+  function teamName(team, all) {
+    const nm = team.map((p) => first(p.name)).join(' & ');
+    const clash = all.filter((x) => x.map((p) => first(p.name)).join(' & ') === nm).length > 1;
+    return clash ? team.map((p) => p.name).join(' & ') : nm;
+  }
+
+  // =====================================================================
+  //  PLAYING A FIXTURE  (fills the normal match setup and starts it)
+  // =====================================================================
+  const curT = () => D().tournaments.find((t) => t.id === curId) || null;
+
+  function playFixture(fid) {
+    const t = curT(), f = t && t.fixtures.find((x) => x.id === fid);
+    if (!t || !f || f.w || !f.a || !f.b) return;
+    if (state.matchActive && !state.matchFinished) { toast('A match is still open. Finish it or start a new one from the Scoreboard tab first.'); return; }
+    const A = entryOf(t, f.a), B = entryOf(t, f.b);
+    const pa = A.pids.map(player), pb = B.pids.map(player);
+    if (pa.concat(pb).some((p) => !p)) { toast('A player in this match was deleted from the roster'); return; }
+    g(t.dbl ? 'typeDoublesBtn' : 'typeSinglesBtn').click();
+    const sb = document.querySelector(`.series-btn[data-series="${t.bo}"]`); if (sb) sb.click();
+    const tb = document.querySelector(`.score-mode-btn[data-score="${t.tg}"]`); if (tb) tb.click();
+    const set = (id, p) => { const el = g(id); el.value = p.name; el.dataset.pid = p.id; };
+    if (t.dbl) { set('inputA1', pa[0]); set('inputA2', pa[1]); set('inputB1', pb[0]); set('inputB2', pb[1]); g('inputTeamA').value = A.name; g('inputTeamB').value = B.name; }
+    else { set('inputP1', pa[0]); set('inputP2', pb[0]); }
+    window.__SM.refreshSlotSelects();
+    state.pendingTour = { tid: t.id, fid: f.id };
+    g('btnStartMatch').click();
+    if (state.pendingTour) { state.pendingTour = null; toast('Could not start the match. Check the players.'); }
+  }
+
+  function walkover(fid, side) {
+    const t = curT(), f = t && t.fixtures.find((x) => x.id === fid);
+    if (!t || !f || f.w || !f.a || !f.b) return;
+    const need = needWins(t);
+    applyResult(t, f, side, { gw: side === 1 ? [need, 0] : [0, need], pt: [0, 0], wo: 1 });
+    openWo = null; window.__SM.commit();
+    const win = entryOf(t, winnerId(f));
+    toast(t.status === 'done' ? `🏆 ${entryOf(t, t.champ).name} wins ${t.name}!` : `${win.name} advances (walkover)`);
+    if (t.status === 'done' && window.triggerConfetti) triggerConfetti();
+  }
+
+  // consumed when the match really starts
+  const _sas = window.smAfterStart;
+  window.smAfterStart = function () {
+    const r = _sas.apply(this, arguments);
+    state.tourCtx = state.pendingTour || null; state.pendingTour = null; state.lastRecordedMatchId = '';
+    const box = g('summaryTour'); if (box) box.classList.add('hidden');
+    return r;
+  };
+
+  const _hmw = window.handleMatchWin;
+  window.handleMatchWin = function (w) {
+    const r = _hmw.apply(this, arguments);
+    try { onMatchEnd(w); } catch (e) { console.error(e); }
+    return r;
+  };
+  function onMatchEnd(w) {
+    const ctx = state.tourCtx; if (!ctx || ctx.done) return; ctx.done = true;
+    const t = D().tournaments.find((x) => x.id === ctx.tid), f = t && t.fixtures.find((x) => x.id === ctx.fid);
+    if (!t || !f || f.w) return;
+    applyResult(t, f, w, { gw: [state.gamesWonT1, state.gamesWonT2], pt: [state.t1TotalPts, state.t2TotalPts], mid: state.lastRecordedMatchId || '' });
+    window.__SM.commit();
+    summaryBanner(t, f);
+    if (t.status === 'done') toast(`🏆 ${entryOf(t, t.champ).name} wins ${t.name}!`);
+  }
+
+  function summaryBanner(t, f) {
+    const box = g('summaryTour'); if (!box) return;
+    const win = entryOf(t, winnerId(f)); let line = '';
+    if (t.status === 'done') line = `<p class="text-sm font-black text-amber-300">🏆 ${esc(entryOf(t, t.champ).name)} is the champion!</p>`;
+    else if (t.type === 'ko') {
+      const nf = fixAt(t, f.r + 1, f.i >> 1), opp = nf ? entryOf(t, f.i % 2 === 0 ? nf.b : nf.a) : null;
+      line = `<p class="text-xs text-slate-200"><b class="text-white">${esc(win.name)}</b> advances to the ${esc(roundName(t, f.r + 1))}${opp ? ` · next: ${esc(win.name)} vs ${esc(opp.name)}` : ' · waiting for the other match'}</p>`;
+    } else { const [d, n] = progress(t); line = `<p class="text-xs text-slate-200">${d} of ${n} matches played</p>`; }
+    box.innerHTML = `<p class="text-[10px] font-bold uppercase tracking-wider text-purple-300">🏟️ ${esc(t.name)}</p>${line}
+      <button type="button" id="btnBackToTour" data-tid="${esc(t.id)}" class="w-full mt-1 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition">Back to the tournament</button>`;
+    box.classList.remove('hidden');
+  }
+
+  // =====================================================================
+  //  SCREENS
+  // =====================================================================
+  function statusText(t) {
+    if (t.status === 'done') return `🏆 ${esc(entryOf(t, t.champ).name)}`;
+    const [d, n] = progress(t), nx = playable(t)[0];
+    return nx ? `${esc(roundName(t, nx.r))} · ${d}/${n} played` : `${d}/${n} played`;
+  }
+  const metaText = (t) => `${t.type === 'ko' ? 'Knockout' : 'Round-robin'} · ${t.dbl ? 'Doubles' : 'Singles'} · ${t.entries.length} ${t.dbl ? 'teams' : 'players'} · ${t.tg} pts · Best of ${t.bo}`;
+
+  function renderList(el) {
+    if (!el) return;
+    const list = D().tournaments.slice().sort((a, b) => b.ts - a.ts);
+    el.innerHTML = list.length ? list.map((t) => {
+      const [d, n] = progress(t), pct = n ? Math.round((d / n) * 100) : 0;
+      return `<button type="button" data-tour="${esc(t.id)}" class="w-full text-left bg-slate-950 border ${t.status === 'done' ? 'border-amber-500/30' : 'border-slate-800 hover:border-slate-600'} rounded-xl p-3 space-y-2 transition">
+        <div class="flex items-center justify-between gap-2"><span class="text-sm font-bold text-white truncate">${esc(t.name)}</span><span class="text-[10px] font-bold ${t.status === 'done' ? 'text-amber-300' : 'text-purple-300'} shrink-0">${t.status === 'done' ? 'FINISHED' : 'IN PROGRESS'}</span></div>
+        <p class="text-[11px] text-slate-400">${esc(metaText(t))}</p>
+        <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden"><div class="h-full ${t.status === 'done' ? 'bg-amber-400' : 'bg-purple-500'} rounded-full" style="width:${pct}%"></div></div>
+        <p class="text-[11px] text-slate-300">${statusText(t)}</p></button>`;
+    }).join('') : '<p class="text-xs text-slate-400 text-center py-3">No tournaments yet. Create a knockout or round-robin for your next club night.</p>';
+  }
+
+  const vs = (t, f) => {
+    const A = entryOf(t, f.a), B = entryOf(t, f.b);
+    return { A: A ? A.name : 'TBD', B: B ? B.name : 'TBD' };
+  };
+
+  function fixtureRow(t, f) {
+    const { A, B } = vs(t, f), ready = f.a && f.b && !f.w && !f.bye;
+    if (f.bye) return `<div class="flex items-center gap-2 bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-500"><span class="flex-1 truncate">${esc(A !== 'TBD' ? A : B)}</span><span class="text-[10px] uppercase tracking-wider">bye</span></div>`;
+    const done = !!f.w;
+    let right = '';
+    if (done) right = `<span class="font-mono font-black text-white">${f.gw[0]}-${f.gw[1]}</span>${f.wo ? '<span class="text-[10px] text-slate-500 ml-1">W/O</span>' : (f.mid ? `<span class="text-[10px] ml-1" title="insights">📊</span>` : '')}`;
+    else if (ready) right = `<button type="button" data-act="play" data-fid="${f.id}" class="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold">▶ Play</button><button type="button" data-act="wo" data-fid="${f.id}" class="ml-1 px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs" title="Walkover">⋯</button>`;
+    else right = '<span class="text-[10px] text-slate-500">waiting</span>';
+    const open = openWo === f.id && ready
+      ? `<div class="flex gap-2 mt-2"><button type="button" data-act="wo1" data-fid="${f.id}" class="flex-1 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-cyan-200 text-[11px] font-bold">${esc(first(A))} wins by walkover</button><button type="button" data-act="wo2" data-fid="${f.id}" class="flex-1 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-200 text-[11px] font-bold">${esc(first(B))} wins by walkover</button></div>` : '';
+    return `<div class="bg-slate-950 border ${ready ? 'border-orange-500/30' : 'border-slate-800'} rounded-xl px-3 py-2 ${done && f.mid ? 'cursor-pointer' : ''}" ${done && f.mid ? `data-mid="${esc(f.mid)}"` : ''}>
+      <div class="flex items-center gap-2 text-xs"><span class="flex-1 min-w-0 truncate ${f.w === 1 ? 'text-white font-bold' : 'text-slate-300'}">${esc(A)}</span><span class="text-slate-600 text-[10px]">vs</span><span class="flex-1 min-w-0 truncate text-right ${f.w === 2 ? 'text-white font-bold' : 'text-slate-300'}">${esc(B)}</span><span class="flex items-center shrink-0 ml-1">${right}</span></div>${open}</div>`;
+  }
+
+  function bracketHTML(t) {
+    const R = totalRounds(t); let cols = '';
+    for (let r = 1; r <= R; r++) {
+      const fs = t.fixtures.filter((f) => f.r === r).sort((a, b) => a.i - b.i);
+      cols += `<div class="flex flex-col w-44 shrink-0"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center mb-2">${esc(roundName(t, r))}</p><div class="flex flex-col justify-around flex-1 gap-2">` + fs.map((f) => {
+        const { A, B } = vs(t, f), a = f.bye && !f.a ? '' : A, b = f.bye && !f.b ? '' : B;
+        const row = (name, side, sc) => `<div class="flex items-center justify-between gap-1 px-2 py-1 text-[11px] ${f.w === side ? 'bg-emerald-500/15 text-white font-bold' : 'text-slate-300'}"><span class="truncate">${esc(name) || '<span class="text-slate-600">bye</span>'}</span><span class="font-mono text-slate-400">${f.w && !f.bye ? sc : ''}</span></div>`;
+        return `<div class="rounded-lg border ${f.a && f.b && !f.w ? 'border-orange-500/40' : 'border-slate-700'} bg-slate-950 overflow-hidden" data-fid="${f.id}">${row(a, 1, f.gw[0])}<div class="h-px bg-slate-800"></div>${row(b, 2, f.gw[1])}</div>`;
+      }).join('') + '</div></div>';
+    }
+    const champ = t.status === 'done' ? `<div class="flex flex-col w-40 shrink-0 justify-center"><div class="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-center"><p class="text-2xl">🏆</p><p class="text-xs font-black text-amber-200 mt-1">${esc(entryOf(t, t.champ).name)}</p></div></div>` : '';
+    return `<div class="overflow-x-auto pb-2"><div class="flex gap-3 min-w-max items-stretch">${cols}${champ}</div></div>`;
+  }
+
+  function standingsHTML(t) {
+    const rows = standings(t);
+    return `<div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="text-[10px] uppercase tracking-wider text-slate-400"><th class="text-left py-1.5 pl-2">#</th><th class="text-left">${t.dbl ? 'Team' : 'Player'}</th><th>P</th><th>W</th><th>L</th><th>Games</th><th class="pr-2" title="Point difference">+/−</th></tr></thead><tbody>` +
+      rows.map((r, i) => `<tr class="border-t border-slate-800 ${i === 0 && t.status === 'done' ? 'bg-amber-500/10' : ''}"><td class="py-2 pl-2 font-black ${i < 3 ? 'text-amber-300' : 'text-slate-500'}">${i + 1}</td><td class="font-bold text-white truncate max-w-[9rem]">${esc(r.e.name)}</td><td class="text-center text-slate-300">${r.p}</td><td class="text-center text-emerald-300 font-bold">${r.w}</td><td class="text-center text-rose-300">${r.l}</td><td class="text-center text-slate-300 font-mono">${r.gw}-${r.gl}</td><td class="text-center pr-2 text-slate-400 font-mono">${r.pw - r.pl >= 0 ? '+' : ''}${r.pw - r.pl}</td></tr>`).join('') +
+      '</tbody></table><p class="text-[10px] text-slate-500 mt-2">Ranked by wins, then game difference, then point difference. The last column is the point difference.</p></div>';
+  }
+
+  function renderTour() {
+    const t = curT(); if (!t) return;
+    g('tourName').textContent = t.name; g('tourMeta').textContent = metaText(t);
+    const [d, n] = progress(t); g('tourProgText').textContent = `${d} of ${n} matches played`; g('tourProgBar').style.width = (n ? (d / n) * 100 : 0) + '%';
+    const champ = g('tourChamp');
+    if (t.status === 'done') { champ.classList.remove('hidden'); champ.innerHTML = `<span class="text-3xl">🏆</span><div><p class="text-[10px] font-bold uppercase tracking-wider text-amber-300">Champion</p><p class="text-lg font-black text-white">${esc(entryOf(t, t.champ).name)}</p></div>`; }
+    else champ.classList.add('hidden');
+
+    const next = playable(t).slice(0, 3);
+    g('tourNext').innerHTML = t.status === 'done' || !next.length ? '' : '<p class="text-[10px] font-bold uppercase tracking-wider text-orange-300">Up next</p>' + next.map((f) => fixtureRow(t, f)).join('');
+
+    g('tourTabFix').className = 'flex-1 py-1.5 rounded-lg font-bold transition text-center ' + (view === 'fix' ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:text-white font-medium');
+    g('tourTabMain').className = 'flex-1 py-1.5 rounded-lg font-bold transition text-center ' + (view === 'main' ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:text-white font-medium');
+    g('tourTabMain').textContent = t.type === 'ko' ? 'Bracket' : 'Standings';
+    const body = g('tourBody');
+    if (view === 'main') body.innerHTML = t.type === 'ko' ? bracketHTML(t) : standingsHTML(t);
+    else {
+      const rounds = Array.from(new Set(t.fixtures.map((f) => f.r))).sort((a, b) => a - b);
+      body.innerHTML = rounds.map((r) => `<div class="space-y-1.5"><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">${esc(roundName(t, r))}</p>` +
+        t.fixtures.filter((f) => f.r === r).sort((a, b) => a.i - b.i).map((f) => fixtureRow(t, f)).join('') + '</div>').join('');
+    }
+  }
+
+  function openTour(id) { curId = id; view = 'fix'; openWo = null; switchTab('tour'); renderTour(); }
+
+  const _st = window.switchTab;
+  window.switchTab = function (tab) {
+    const v = g('viewTour');
+    if (tab === 'tour') { _st.call(this, 'club'); g('viewClub').classList.add('hidden'); v.classList.remove('hidden'); return; }
+    v.classList.add('hidden');
+    return _st.apply(this, arguments);
+  };
+  const _rf = window.ClubHub && ClubHub.refresh;
+  if (_rf) ClubHub.refresh = function () {
+    _rf.apply(this, arguments);
+    const v = g('viewTour');
+    if (v && !v.classList.contains('hidden')) { if (curT()) renderTour(); else switchTab('club'); }
+  };
+
+  // =====================================================================
+  //  NEW TOURNAMENT FORM
+  // =====================================================================
+  const draft = { type: 'ko', dbl: 0, tg: 11, bo: 3, seed: 'elo', sel: new Set(), teamMode: 'balanced', teams: [] };
+
+  function seg(groupId, attr, val) {
+    document.querySelectorAll(`#${groupId} [${attr}]`).forEach((b) => {
+      const on = String(b.getAttribute(attr)) === String(val);
+      b.className = 'py-2 rounded-xl border text-xs font-bold text-center transition ' + (on ? 'border-orange-500 bg-orange-500/20 text-orange-300' : 'border-slate-700 bg-slate-800 text-slate-300 font-semibold');
+    });
+  }
+  function openNew() {
+    if (!D().players.length) { toast('Add players in the Roster tab first'); return; }
+    draft.sel = new Set(); draft.teams = [];
+    g('tourInputName').value = 'Club Tournament';
+    seg('tourFormatGroup', 'data-fmt', draft.type); seg('tourModeGroup', 'data-dbl', draft.dbl); seg('tourPtsGroup', 'data-tg', draft.tg); seg('tourBoGroup', 'data-bo', draft.bo);
+    g('tourSeed').value = draft.seed;
+    renderPickList(); refreshDraft();
+    g('modalNewTour').classList.remove('hidden');
+  }
+  function renderPickList() {
+    const list = D().players.slice().sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+    g('tourPlayers').innerHTML = list.map((p) => `<label class="flex items-center gap-2.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 cursor-pointer"><input type="checkbox" data-pid="${esc(p.id)}" class="accent-orange-500 w-4 h-4" ${draft.sel.has(p.id) ? 'checked' : ''}><span class="flex-1 min-w-0 truncate text-xs text-white font-semibold">${esc(p.name)}</span><span class="text-[10px] font-bold text-amber-300">${p.rating}</span></label>`).join('');
+  }
+  function refreshDraft() {
+    const n = draft.sel.size, unit = draft.dbl ? 'players' : 'players';
+    g('tourSelCount').textContent = `${n} selected`;
+    const wrap = g('tourTeamsWrap');
+    if (draft.dbl && n >= 4 && n % 2 === 0) {
+      draft.teams = makeTeams(Array.from(draft.sel), draft.teamMode);
+      wrap.classList.remove('hidden');
+      g('tourTeams').innerHTML = draft.teams.map((tm, i) => `<div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs"><span class="text-slate-400 font-bold">Team ${i + 1}</span><span class="flex-1 text-white font-semibold truncate">${esc(teamName(tm, draft.teams))}</span><span class="text-[10px] text-amber-300 font-bold">${Math.round(avg(tm.map((p) => p.rating)))}</span></div>`).join('');
+    } else { draft.teams = []; wrap.classList.add('hidden'); }
+    const limit = MAX[draft.type] * (draft.dbl ? 2 : 1);
+    let hint = '';
+    if (draft.dbl) hint = n % 2 ? 'Doubles needs an even number of players.' : (n < 4 ? 'Pick at least 4 players (2 teams).' : '');
+    else hint = n < 2 ? 'Pick at least 2 players.' : '';
+    if (n > limit) hint = `At most ${limit} players for this format.`;
+    g('tourHint').textContent = hint || (draft.type === 'ko' ? 'Top seeds get byes if the bracket is not full.' : 'Everyone plays everyone once.');
+    g('tourHint').className = 'text-[11px] ' + (hint ? 'text-amber-300' : 'text-slate-500');
+  }
+
+  function create() {
+    const name = g('tourInputName').value.trim();
+    if (!name) { toast('Give the tournament a name'); return; }
+    const n = draft.sel.size, limit = MAX[draft.type] * (draft.dbl ? 2 : 1);
+    let entries;
+    if (draft.dbl) {
+      if (n < 4 || n % 2) { toast('Doubles needs an even number of players (at least 4)'); return; }
+      if (n > limit) { toast(`At most ${limit} players for this format`); return; }
+      entries = draft.teams.map((tm) => ({ name: teamName(tm, draft.teams), pids: tm.map((p) => p.id) }));
+    } else {
+      if (n < 2) { toast('Pick at least 2 players'); return; }
+      if (n > limit) { toast(`At most ${limit} players for this format`); return; }
+      entries = Array.from(draft.sel).map(player).filter(Boolean).map((p) => ({ name: p.name, pids: [p.id] }));
+    }
+    const t = createTournament({ name, type: draft.type, dbl: draft.dbl, tg: draft.tg, bo: draft.bo, seed: draft.seed, entries });
+    D().tournaments.push(t);
+    g('modalNewTour').classList.add('hidden');
+    window.__SM.commit();
+    toast(`${t.name} created`);
+    openTour(t.id);
+  }
+
+  function removeCurrent() {
+    const t = curT(); if (!t) return;
+    window.__SM.confirmDialog({
+      title: `Delete "${t.name}"?`, text: 'The bracket and standings are removed. Matches that were already played keep their results in everyone’s career stats.',
+      ok: 'Delete tournament', danger: true,
+      onOk: () => { D().tournaments = D().tournaments.filter((x) => x.id !== t.id); D().deleted.push({ id: t.id, t: Date.now() }); curId = null; window.__SM.commit(); switchTab('club'); toast('Tournament deleted'); }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    g('btnNewTour').addEventListener('click', openNew);
+    g('btnCloseNewTour').addEventListener('click', () => g('modalNewTour').classList.add('hidden'));
+    g('btnCreateTour').addEventListener('click', create);
+    g('clubTours').addEventListener('click', (e) => { const b = e.target.closest('[data-tour]'); if (b) openTour(b.dataset.tour); });
+    g('btnTourBack').addEventListener('click', () => switchTab('club'));
+    g('btnTourDelete').addEventListener('click', removeCurrent);
+    g('tourTabFix').addEventListener('click', () => { view = 'fix'; renderTour(); });
+    g('tourTabMain').addEventListener('click', () => { view = 'main'; renderTour(); });
+    g('viewTour').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]');
+      if (b) {
+        const fid = b.dataset.fid, act = b.dataset.act;
+        if (act === 'play') playFixture(fid);
+        else if (act === 'wo') { openWo = openWo === fid ? null : fid; renderTour(); }
+        else if (act === 'wo1') walkover(fid, 1); else if (act === 'wo2') walkover(fid, 2);
+        return;
+      }
+      const m = e.target.closest('[data-mid]'); if (m && window.Insights) Insights.openById(m.dataset.mid);
+    });
+    document.addEventListener('click', (e) => { const b = e.target.closest('#btnBackToTour'); if (!b) return; g('modalMatchSummary').classList.add('hidden'); openTour(b.dataset.tid); });
+
+    // form controls
+    g('tourFormatGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-fmt]'); if (!b) return; draft.type = b.dataset.fmt; seg('tourFormatGroup', 'data-fmt', draft.type); refreshDraft(); });
+    g('tourModeGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-dbl]'); if (!b) return; draft.dbl = +b.dataset.dbl; seg('tourModeGroup', 'data-dbl', draft.dbl); refreshDraft(); });
+    g('tourPtsGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-tg]'); if (!b) return; draft.tg = +b.dataset.tg; seg('tourPtsGroup', 'data-tg', draft.tg); });
+    g('tourBoGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-bo]'); if (!b) return; draft.bo = +b.dataset.bo; seg('tourBoGroup', 'data-bo', draft.bo); });
+    g('tourSeed').addEventListener('change', (e) => { draft.seed = e.target.value; });
+    g('tourPlayers').addEventListener('change', (e) => { const c = e.target.closest('[data-pid]'); if (!c) return; if (c.checked) draft.sel.add(c.dataset.pid); else draft.sel.delete(c.dataset.pid); refreshDraft(); });
+    g('tourSelAll').addEventListener('click', () => { D().players.forEach((p) => draft.sel.add(p.id)); renderPickList(); refreshDraft(); });
+    g('tourSelNone').addEventListener('click', () => { draft.sel.clear(); renderPickList(); refreshDraft(); });
+    g('tourTeamsBal').addEventListener('click', () => { draft.teamMode = 'balanced'; refreshDraft(); });
+    g('tourTeamsRand').addEventListener('click', () => { draft.teamMode = 'random'; refreshDraft(); });
+  });
+
+  window.Tournament = { renderList, createTournament, standings, applyResult, seedOrder, playable, roundName, openTour, makeTeams };
 })();
 
   </script>
