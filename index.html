@@ -513,6 +513,16 @@
         </div>
       </div>
 
+      <!-- Match type: ranked or casual -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Match type</label>
+        <div class="grid grid-cols-2 gap-2" id="rankToggle">
+          <button type="button" data-rank="ranked">🏆 Ranked</button>
+          <button type="button" data-rank="casual">🤝 Casual</button>
+        </div>
+        <p id="rankHint" class="text-[10px] text-slate-500"></p>
+      </div>
+
       <!-- Start Button -->
       <button type="button" id="btnStartMatch" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-slate-950 font-black text-base shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-2">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -2785,7 +2795,7 @@
       r0: p.r0, w0: p.w0 || 0, l0: p.l0 || 0, c: p.c || 0, u: p.u || 0 };
   }
   function stripM(m) {
-    return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, ev: m.ev || '', w: m.w, gw: m.gw, pt: m.pt };
+    return { id: m.id, ts: m.ts, dbl: m.dbl, tg: m.tg, bo: m.bo, a: m.a, b: m.b, g: m.g, ev: m.ev || '', rk: m.rk === 0 ? 0 : 1, w: m.w, gw: m.gw, pt: m.pt };
   }
   function payload() {
     return { v: 2, players: D.players.map(baseOf), deleted: D.deleted.slice(), matches: D.matches.map(stripM), tournaments: D.tournaments.map(cleanTournament).filter(Boolean) };
@@ -2825,7 +2835,7 @@
       .filter((m) => m && typeof m.id === 'string' && m.a && m.b && (m.w === 1 || m.w === 2))
       .map((m) => ({
         id: str(m.id, 40), ts: +m.ts || 0, dbl: m.dbl ? 1 : 0, tg: num(m.tg, 1, 99, 11), bo: num(m.bo, 1, 9, 3),
-        a: side(m.a), b: side(m.b), g: str(m.g, 200), ev: String(m.ev || '').replace(/[^a-d,]/g, '').slice(0, 1500), w: m.w,
+        a: side(m.a), b: side(m.b), g: str(m.g, 200), ev: String(m.ev || '').replace(/[^a-d,]/g, '').slice(0, 1500), rk: m.rk === 0 ? 0 : 1, w: m.w,
         gw: [num(m.gw && m.gw[0], 0, 9, 0), num(m.gw && m.gw[1], 0, 9, 0)],
         pt: [num(m.pt && m.pt[0], 0, 9999, 0), num(m.pt && m.pt[1], 0, 9999, 0)]
       }));
@@ -2885,8 +2895,9 @@
     });
     D.matches = D.matches.slice().sort((x, y) => x.ts - y.ts || (x.id < y.id ? -1 : 1));
     D.matches.forEach((m) => {
-      const A = m.a.ids.map((i) => by.get(i)).filter(Boolean), B = m.b.ids.map((i) => by.get(i)).filter(Boolean);
       m._rb = {}; m._ra = {}; m._d = 0; m._elo = false;
+      if (m.rk === 0) return;   // casual match: saved in the history, counts for nothing
+      const A = m.a.ids.map((i) => by.get(i)).filter(Boolean), B = m.b.ids.map((i) => by.get(i)).filter(Boolean);
       A.concat(B).forEach((p) => { m._rb[p.id] = p.rating; });
       if (A.length && B.length) {
         const avg = (l) => l.reduce((s, p) => s + p.rating, 0) / l.length;
@@ -3039,7 +3050,7 @@
       const dtxt = delta == null ? '' : `<span class="${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">${delta >= 0 ? '+' : ''}${delta}</span>`;
       return `<div data-mid="${esc(m.id)}" class="cursor-pointer hover:border-slate-600 flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px]">
         <span class="w-5 h-5 rounded text-[10px] font-black flex items-center justify-center ${won ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${won ? 'W' : 'L'}</span>
-        <span class="flex-1 min-w-0 truncate text-slate-200">vs ${esc(oppName)}${m.ev ? ' <span class="text-[10px]">📊</span>' : ''}</span>
+        <span class="flex-1 min-w-0 truncate text-slate-200">vs ${esc(oppName)}${m.ev ? ' <span class="text-[10px]">📊</span>' : ''}${m.rk === 0 ? ' <span class="text-[9px] px-1 rounded bg-slate-800 text-slate-400 uppercase">casual</span>' : ''}</span>
         <span class="font-mono text-slate-300">${gwMine}-${gwOpp}</span>${dtxt}
         <span class="text-slate-500 w-12 text-right">${esc(date)}</span></div>`;
     }).join('') : '<p class="text-[11px] text-slate-500">No matches recorded yet.</p>';
@@ -3202,10 +3213,33 @@
     state.matchRoster = state.isDoubles
       ? { a: [mk('inputA1', state.a1), mk('inputA2', state.a2)], b: [mk('inputB1', state.b1), mk('inputB2', state.b2)] }
       : { a: [mk('inputP1', state.p1Name)], b: [mk('inputP2', state.p2Name)] };
-    state.matchStartTs = Date.now(); state.matchRecorded = 0;
+    state.matchStartTs = Date.now(); state.matchRecorded = 0; state.matchRanked = rankedChoice;
     if (window.Insights) Insights.reset();
     if (window.ClubHub) ClubHub.updateLiveWin();
   };
+
+  // ranked / casual choice on the setup screen
+  let rankedChoice = true;
+  function paintRank() {
+    document.querySelectorAll('#rankToggle [data-rank]').forEach((b) => {
+      const on = (b.dataset.rank === 'ranked') === rankedChoice;
+      b.className = 'rank-btn py-2 px-2 rounded-xl border text-xs font-bold text-center transition ' + (on ? 'border-orange-500 bg-orange-500/20 text-orange-300' : 'border-slate-700 bg-slate-800 text-slate-300 font-semibold');
+    });
+    const h = g('rankHint'); if (h) h.textContent = rankedChoice ? 'Counts for ELO, rankings, streaks and achievements.' : 'Practice game: saved in the history, but it changes no ELO and no career record.';
+  }
+  function bindRank() {
+    const t = g('rankToggle'); if (!t) return;
+    t.addEventListener('click', (e) => { const b = e.target.closest('[data-rank]'); if (!b) return; rankedChoice = b.dataset.rank === 'ranked'; paintRank(); });
+    paintRank();
+  }
+
+  // keep the browser from pushing saved emails / addresses into name boxes
+  function guardAutofill() {
+    const boxes = document.querySelectorAll('#viewSetup input[type=text], #modalAddPlayer input[type=text], #tourInputName');
+    boxes.forEach((el) => { el.setAttribute('autocomplete', 'sm-off'); el.setAttribute('data-lpignore', 'true'); el.setAttribute('data-1p-ignore', 'true'); });
+    const sweep = () => boxes.forEach((el) => { if (/@/.test(el.value) && document.activeElement !== el) { el.value = ''; delete el.dataset.pid; } });
+    [300, 900, 1800, 3500].forEach((ms) => setTimeout(() => { sweep(); refreshSlotSelects(); }, ms));
+  }
 
   // =====================================================================
   //  RECORD A FINISHED MATCH → career stats
@@ -3225,6 +3259,7 @@
       b: { n: getT2Name(), ids: idsB, names: R.b.map((x) => x.name) },
       g: state.gamesHistory.map((x) => `${x.t1Score}-${x.t2Score}`).join(','),
       ev: window.Insights ? Insights.encode() : '',
+      rk: state.matchRanked === false ? 0 : 1,
       w: winnerTeam, gw: [state.gamesWonT1, state.gamesWonT2], pt: [state.t1TotalPts, state.t2TotalPts]
     };
     const allIds = idsA.concat(idsB);
@@ -3234,7 +3269,7 @@
     commit();
     const won = window.ClubHub ? ClubHub.unlocked(allIds, before) : [];
     renderCareer(m, won);
-    toast(won.length ? `${won[0].icon} ${won[0].player} unlocked ${won[0].name}${won.length > 1 ? ` +${won.length - 1} more` : ''}` : 'Career stats updated');
+    toast(m.rk === 0 ? 'Casual match saved (no ELO change)' : won.length ? `${won[0].icon} ${won[0].player} unlocked ${won[0].name}${won.length > 1 ? ` +${won.length - 1} more` : ''}` : 'Career stats updated');
   }
 
   function renderCareer(m, unlockedList) {
@@ -3248,6 +3283,7 @@
       d.innerHTML = `<span class="text-lg">${esc(u.icon)}</span><span class="flex-1 min-w-0"><b class="text-amber-200">${esc(u.player)}</b> <span class="text-slate-300">unlocked</span> <b class="text-amber-300">${esc(u.name)}</b></span>`;
       if (bb) bb.appendChild(d);
     });
+    if (m && m.rk === 0) { note.textContent = 'Casual match: saved to the history, but it does not change ELO or career records.'; return; }
     if (!m) {
       note.textContent = 'Tip: pick players from the roster before the match to build their career stats and ELO.';
       return;
@@ -3548,7 +3584,7 @@
     const lastUid = configured ? ls('sm_last_uid') : null;
     Cloud.pending = !!lastUid;
     loadNs(lastUid ? 'u_' + lastUid : 'guest');
-    bindRosterUI(); bindSlots(); bindAccountUI();
+    bindRosterUI(); bindSlots(); bindAccountUI(); bindRank(); guardAutofill();
     setAuthMode('signin');
     refreshAllRosterUI();
     if (configured) {
@@ -3714,6 +3750,7 @@
     if (!player) return s;
     let peak = player.r0;
     D().matches.forEach((m) => {
+      if (m.rk === 0) return;
       const onA = m.a.ids.includes(pid), onB = m.b.ids.includes(pid);
       if (!onA && !onB) return;
       const side = onA ? 1 : 2, won = m.w === side, games = parseGames(m).map((x) => (side === 1 ? x : [x[1], x[0]]));
@@ -3792,7 +3829,7 @@
 
   function renderClub() {
     const players = D().players.slice().sort((a, b) => b.rating - a.rating || b.wins - a.wins || a.name.localeCompare(b.name));
-    const matches = D().matches;
+    const matches = D().matches.filter((m) => m.rk !== 0);
     g('clubSummary').innerHTML = [['Players', players.length], ['Matches', matches.length], ['Games', matches.reduce((s, m) => s + m.gw[0] + m.gw[1], 0)]]
       .map(([k, v]) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center"><span class="text-[10px] text-slate-400 uppercase block">${k}</span><span class="text-xl font-black text-white">${v}</span></div>`).join('');
 
@@ -3802,7 +3839,9 @@
       board.innerHTML = '<p class="text-xs text-slate-400 text-center py-5">No players yet. Add players in the Roster tab, score a few matches and the ranking appears here.</p>';
     } else {
       const medal = ['🥇', '🥈', '🥉'];
-      board.innerHTML = players.map((p, i) => {
+      const ranked = players.filter((p) => p.wins + p.losses > 0), unranked = players.filter((p) => p.wins + p.losses === 0).sort((a, b) => a.name.localeCompare(b.name));
+      const unrankedHTML = unranked.length ? '<p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 pt-2">Not ranked yet · play a ranked match to enter the table</p>' + unranked.map((p) => `<button type="button" data-open="${esc(p.id)}" class="club-row w-full flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 text-left opacity-80 hover:opacity-100 transition"><span class="w-7 text-center text-sm font-black text-slate-600">–</span><span class="w-9 h-9 shrink-0 rounded-lg bg-slate-800 text-slate-300 font-black text-xs flex items-center justify-center">${esc(SM().initialsOf(p.name))}</span><span class="flex-1 min-w-0 text-sm font-semibold text-slate-300 truncate">${esc(p.name)}</span><span class="text-[10px] text-slate-500">no matches yet</span></button>`).join('') : '';
+      board.innerHTML = ranked.map((p, i) => {
         const total = p.wins + p.losses, rate = total ? Math.round((p.wins / total) * 100) : 0;
         const delta = p.rating - p.r0, dots = p.form.slice(-5).map((r) => `<span class="w-1.5 h-1.5 rounded-full ${r === 'W' ? 'bg-emerald-400' : 'bg-rose-400'}"></span>`).join('');
         const streak = p.streak >= 2 ? `<span class="text-[10px] font-bold text-emerald-300">🔥W${p.streak}</span>` : '';
@@ -3813,7 +3852,7 @@
             <span class="flex items-center gap-1.5 text-[10px] text-slate-400"><span>${p.wins}W-${p.losses}L${total ? ' · ' + rate + '%' : ''}</span><span class="flex items-center gap-0.5">${dots}</span>${streak}</span></span>
           <span class="text-right"><span class="block text-sm font-black text-amber-300">${p.rating}</span>
             <span class="block text-[10px] font-bold ${delta > 0 ? 'text-emerald-400' : delta < 0 ? 'text-rose-400' : 'text-slate-500'}">${delta > 0 ? '▲' + delta : delta < 0 ? '▼' + -delta : '–'}</span></span></button>`;
-      }).join('');
+      }).join('') + unrankedHTML;
     }
 
     // highlights
@@ -3854,6 +3893,7 @@
   function h2h(aId, bId) {
     const r = { aw: 0, bw: 0, ag: 0, bg: 0, ap: 0, bp: 0, list: [] };
     D().matches.forEach((m) => {
+      if (m.rk === 0) return;
       const aSide = m.a.ids.includes(aId) ? 1 : (m.b.ids.includes(aId) ? 2 : 0), bSide = m.a.ids.includes(bId) ? 1 : (m.b.ids.includes(bId) ? 2 : 0);
       if (!aSide || !bSide || aSide === bSide) return;
       const aWon = m.w === aSide; if (aWon) r.aw++; else r.bw++;
@@ -3880,7 +3920,7 @@
     }
     // top rivalries
     const pairs = new Map();
-    D().matches.forEach((m) => m.a.ids.forEach((x) => m.b.ids.forEach((y) => {
+    D().matches.filter((m) => m.rk !== 0).forEach((m) => m.a.ids.forEach((x) => m.b.ids.forEach((y) => {
       const k = x < y ? x + '|' + y : y + '|' + x; pairs.set(k, (pairs.get(k) || 0) + 1);
     })));
     const top = Array.from(pairs).sort((p, q) => q[1] - p[1]).slice(0, 3).filter((x) => playerBy(x[0].split('|')[0]) && playerBy(x[0].split('|')[1]));
@@ -4082,7 +4122,7 @@
     const R = analyze(rec), A = rec.a.n || 'Team A', B = rec.b.n || 'Team B';
     const gw = rec.gw || [0, 0];
     g('insTitle').textContent = `${A} vs ${B}`;
-    g('insSub').textContent = (rec.w ? `${rec.w === 1 ? A : B} won ${Math.max(gw[0], gw[1])}-${Math.min(gw[0], gw[1])}` : 'Match in progress') + ` · ${rec.tg || 11} pts · Best of ${rec.bo || 3}` + (rec.ts && rec.id !== 'live' ? ` · ${dateTxt(rec.ts)}` : '');
+    g('insSub').textContent = (rec.w ? `${rec.w === 1 ? A : B} won ${Math.max(gw[0], gw[1])}-${Math.min(gw[0], gw[1])}` : 'Match in progress') + ` · ${rec.tg || 11} pts · Best of ${rec.bo || 3}` + (rec.rk === 0 ? ' · Casual' : '') + (rec.ts && rec.id !== 'live' ? ` · ${dateTxt(rec.ts)}` : '');
     const chart = g('insChart'), tiles = g('insTiles'), moments = g('insMoments'), games = g('insGames'), note = g('insNote');
     const gamesFromScores = (rec.g ? rec.g.split(',') : []).map((x) => x.split('-').map(Number));
 
@@ -4129,7 +4169,7 @@
     const names = (t) => t.map((x) => x.name).filter(Boolean);
     const R = state.matchRoster;
     return {
-      id: 'live', ts: Date.now(), tg: state.targetScore, bo: state.seriesLength, ev: log.join(','), g: gs,
+      id: 'live', ts: Date.now(), tg: state.targetScore, bo: state.seriesLength, ev: log.join(','), g: gs, rk: state.matchRanked === false ? 0 : 1,
       a: { n: getT1Name(), names: R ? names(R.a) : [] }, b: { n: getT2Name(), names: R ? names(R.b) : [] },
       w: state.matchFinished ? (state.gamesWonT1 > state.gamesWonT2 ? 1 : 2) : 0, gw: [state.gamesWonT1, state.gamesWonT2]
     };
@@ -4147,7 +4187,7 @@
         <span class="flex-1 min-w-0 truncate ${aw ? 'text-white font-bold' : 'text-slate-400'}">${esc(m.a.names.filter(Boolean).join(' & ') || m.a.n)}</span>
         <span class="font-mono font-black text-white shrink-0">${m.gw[0]}-${m.gw[1]}</span>
         <span class="flex-1 min-w-0 truncate text-right ${!aw ? 'text-white font-bold' : 'text-slate-400'}">${esc(m.b.names.filter(Boolean).join(' & ') || m.b.n)}</span>
-        <span class="shrink-0 text-[10px] text-slate-500 w-12 text-right">${m.ev ? '📊 ' : ''}${dateTxt(m.ts)}</span></button>`;
+        <span class="shrink-0 text-[10px] text-slate-500 text-right whitespace-nowrap">${m.rk === 0 ? '<span class="px-1 rounded bg-slate-800 text-slate-400 uppercase mr-1">casual</span>' : ''}${m.ev ? '📊 ' : ''}${dateTxt(m.ts)}</span></button>`;
     }).join('');
   }
 
@@ -4157,7 +4197,7 @@
     const o = { n: 0, sv: { p: 0, w: 0 }, rv: { p: 0, w: 0 }, cl: { p: 0, w: 0 }, run: 0 };
     D().matches.forEach((m) => {
       const side = m.a.ids.includes(p.id) ? 1 : (m.b.ids.includes(p.id) ? 2 : 0);
-      if (!side || !m.ev) return;
+      if (!side || !m.ev || m.rk === 0) return;
       const R = analyze(m); if (!R.has) return;
       o.n++; const i = side - 1;
       o.sv.p += R.sv[i].p; o.sv.w += R.sv[i].w; o.rv.p += R.rv[i].p; o.rv.w += R.rv[i].w; o.cl.p += R.cl[i].p; o.cl.w += R.cl[i].w; o.run = Math.max(o.run, R.run[i].n);
@@ -4318,6 +4358,7 @@
     const A = entryOf(t, f.a), B = entryOf(t, f.b);
     const pa = A.pids.map(player), pb = B.pids.map(player);
     if (pa.concat(pb).some((p) => !p)) { toast('A player in this match was deleted from the roster'); return; }
+    const rb = document.querySelector('#rankToggle [data-rank="ranked"]'); if (rb) rb.click();   // tournament matches always count
     g(t.dbl ? 'typeDoublesBtn' : 'typeSinglesBtn').click();
     const sb = document.querySelector(`.series-btn[data-series="${t.bo}"]`); if (sb) sb.click();
     const tb = document.querySelector(`.score-mode-btn[data-score="${t.tg}"]`); if (tb) tb.click();
