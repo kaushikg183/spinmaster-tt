@@ -1,10 +1,17 @@
 {
   "name": "SpinMaster TT - Table Tennis Scorer",
   "short_name": "SpinMaster TT",
-  "description": "Professional Table Tennis Match Scorer with doubles rotation, player profiles, and voice announcer.",
-  "start_url": "index.html",
+  "description": "Table tennis scoring, player careers, club rankings and tournaments.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#020617",
-  "theme_color": "#ea580c"
+  "theme_color": "#020617",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
