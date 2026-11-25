@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write      # lets the build publish the public download (Releases)
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,6 +15,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Prepare www folder
+        run: |
+          mkdir -p www/fonts
+          for f in index.html style.css manifest.json service-worker.js fb.js firebase-config.js icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png; do
+            if [ -f "$f" ]; then cp "$f" www/; else echo "note: $f not found, skipping"; fi
+          done
+          cp *.woff2 www/fonts/
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -24,16 +35,57 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Install Capacitor CLI
+      # A fixed signing key means: new APKs install over the old app (your data stays),
+      # and Google sign-in keeps working because the SHA-1 never changes.
+      - name: Use the fixed signing key
+        run: |
+          if [ -f debug.keystore ]; then
+            mkdir -p ~/.android
+            cp debug.keystore ~/.android/debug.keystore
+            if keytool -list -keystore ~/.android/debug.keystore -storepass android > /dev/null 2>&1; then
+              echo "Using the fixed debug.keystore from the repo. Its SHA-1 is:"
+              keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep "SHA1"
+            else
+              echo "debug.keystore could not be read, using a temporary key instead"
+              rm -f ~/.android/debug.keystore
+            fi
+          else
+            echo "No debug.keystore in the repo, using a temporary key (updates will need an uninstall first)"
+          fi
+
+      # Capacitor is pinned to v6 (built for Gradle 8.2 / JDK 17).
+      - name: Install Capacitor
         run: |
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          if [ -f google-services.json ]; then
+            cat > check-gs.js <<'EOF'
+          const j = JSON.parse(require('fs').readFileSync('google-services.json', 'utf8'));
+          const apps = (j.client || []).filter(c => c.client_info && c.client_info.android_client_info && c.client_info.android_client_info.package_name === 'com.spinmaster.tt');
+          if (!apps.length) { console.log('PROBLEM: google-services.json has no Android app with package com.spinmaster.tt'); process.exit(1); }
+          if (!apps.some(c => (c.oauth_client || []).some(o => o.client_type === 3))) { console.log('PROBLEM: google-services.json has no Google web client. Turn on Google in Authentication, add the SHA-1 to the Android app, then download the file again'); process.exit(2); }
+          EOF
+            if node check-gs.js; then
+              echo "google-services.json looks good: adding native Google sign-in"
+              npm install @capacitor-firebase/authentication@6 firebase@10
+              # safety net: a Google sign-in problem must never stop the whole app from opening
+              P=node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/FirebaseAuthenticationPlugin.java
+              sed -i 's#implementation = new FirebaseAuthentication(this, config);#try { implementation = new FirebaseAuthentication(this, config); } catch (Throwable t) { android.util.Log.e("SpinMaster", "Google sign-in disabled", t); }#' "$P"
+              grep -q "Google sign-in disabled" "$P" && echo "safety net applied" || echo "note: safety net not applied"
+            else
+              echo "WARNING: skipping native Google sign-in because google-services.json is not usable (see PROBLEM above). Email login still works."
+              rm -f google-services.json
+            fi
+          else
+            echo "No google-services.json: building without native Google sign-in (email login still works)"
+          fi
 
       - name: Initialize Capacitor
         run: |
-          rm -rf android
-          npx cap init "SpinMaster TT" "com.spinmaster.tt" --web-dir "www"
+          rm -rf android capacitor.config.ts capacitor.config.json
+          node -e "const fs=require('fs');const c={appId:'com.spinmaster.tt',appName:'SpinMaster TT',webDir:'www'};if(fs.existsSync('google-services.json')){c.plugins={FirebaseAuthentication:{skipNativeAuth:true,providers:['google.com']}};}fs.writeFileSync('capacitor.config.json',JSON.stringify(c,null,2));"
           npx cap add android
+          if [ -f google-services.json ]; then cp google-services.json android/app/google-services.json; fi
           npx cap sync android
 
       - name: Build APK with Gradle
@@ -48,3 +100,20 @@ jobs:
         with:
           name: SpinMaster-TT-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # A public link that works without any login:
+      # https://github.com/<you>/<repo>/releases/latest/download/SpinMaster-TT.apk
+      - name: Name the APK for download
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk SpinMaster-TT.apk
+
+      - name: Publish the public download (GitHub Release)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: SpinMaster TT, newest Android app
+          make_latest: true
+          files: SpinMaster-TT.apk
+          body: |
+            Download **SpinMaster-TT.apk** below and open it on your Android phone.
+            If Android asks, allow installs from your browser or file manager. Your data stays when you update.
+            This page always holds the newest build.
