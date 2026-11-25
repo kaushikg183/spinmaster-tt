@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#020617">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SpinMaster TT">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>SpinMaster - Table Tennis Match Scorer</title>
   <!-- Tailwind CSS -->
     <link rel="stylesheet" href="style.css">
@@ -343,6 +350,11 @@
     <div id="roBanner" class="hidden max-w-3xl mx-auto w-full mb-3 flex items-center justify-between gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-xl px-3 py-2">
       <span id="roBannerText" class="text-xs font-semibold text-cyan-200">👁 Club view</span>
       <button type="button" id="btnRoSwitch" class="shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-bold text-slate-200">My own data</button>
+    </div>
+    <div id="inviteBanner" class="hidden max-w-3xl mx-auto w-full mb-3 bg-purple-500/10 border border-purple-500/40 rounded-xl px-3 py-2.5 space-y-2">
+      <p id="inviteBannerText" class="text-xs text-slate-200"></p>
+      <p id="inviteBannerMsg" class="hidden text-[11px] text-rose-300"></p>
+      <div class="flex gap-2"><button type="button" id="btnInviteJoin" class="flex-1 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold">Join now</button><button type="button" id="btnInviteDismiss" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold">Not now</button></div>
     </div>
 
     <!-- VIEW: SETUP CARD (Displayed initially or when editing match) -->
@@ -1247,6 +1259,7 @@
         <h3 class="text-lg font-black text-white">Your account</h3>
         <p class="text-xs text-slate-400" id="authSubtitle">You are using the app as a guest.</p>
       </div>
+      <div id="installBox" class="hidden bg-slate-950/70 border border-slate-800 rounded-xl p-3"></div>
 
       <!-- SIGNED IN -->
       <div id="authSignedIn" class="hidden space-y-3">
@@ -4709,7 +4722,7 @@
     user: null, ownerId: '', ownerName: '', invites: [], members: [], requests: [],
     member: null,          // { clubId, pid, name, clubName } once approved
     pending: null,         // { clubId, code } while waiting for the owner
-    unsubs: [], pubTimer: null, lastPub: '', approving: new Set(), problem: '', sheet: null, joinCode: '', joinMsg: ''
+    unsubs: [], pubTimer: null, lastPub: '', approving: new Set(), problem: '', sheet: null, joinCode: '', joinMsg: '', invite: ''
   };
 
   const ALPHA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -4721,6 +4734,42 @@
   const norm = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   const pretty = (c) => (c ? c.slice(0, 5) + '-' + c.slice(5) : '');
   const initials = (n) => SMx().initialsOf(n);
+
+  // the public web address of the app and the public Android download, so an invite works without any login
+  function webAppUrl() {
+    let b = ''; try { b = SMx().ls('spinmaster_live_base') || ''; } catch (e) {}
+    if (!b) b = 'https://kaushikg183.github.io/spinmaster-tt/watch.html';
+    b = b.replace(/[?#].*$/, '').replace(/watch\.html$/, '');
+    return b.endsWith('/') ? b : b + '/';
+  }
+  function apkUrl() {
+    try { const u = new URL(webAppUrl()), m = u.hostname.match(/^([^.]+)\.github\.io$/), repo = u.pathname.split('/').filter(Boolean)[0]; if (m && repo) return `https://github.com/${m[1]}/${repo}/releases/latest/download/SpinMaster-TT.apk`; } catch (e) {}
+    return '';
+  }
+  const inviteLink = (code) => webAppUrl() + '?join=' + code;
+  function inviteText(code) {
+    const apk = apkUrl();
+    return `Join ${CL.ownerName} on SpinMaster TT 🏓\n\n1) Open this link on your phone:\n${inviteLink(code)}\n${apk ? `   (Android app instead: ${apk})\n` : ''}2) Create an account with your email\n3) Tap "Join now". Your invite code ${pretty(code)} is already filled in.`;
+  }
+
+  // an invite link carries the code: remember it until the person has an account
+  function readInvite() {
+    try {
+      const u = new URL(location.href), c = u.searchParams.get('join');
+      if (c) { const n = norm(c); if (n.length >= 8) SMx().ls('sm_join', n); u.searchParams.delete('join'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+    } catch (e) {}
+    CL.invite = SMx().ls('sm_join') || '';
+  }
+  function clearInvite() { CL.invite = ''; SMx().ls('sm_join', null); }
+  function renderInvite() {
+    const b = g('inviteBanner'); if (!b) return;
+    if (CL.invite && (CL.ownerId || CL.member || CL.pending)) clearInvite();
+    if (!CL.invite || !enabled()) { b.classList.add('hidden'); return; }
+    b.classList.remove('hidden');
+    g('inviteBannerText').innerHTML = CL.user ? `🏓 You are invited to join a club.<br><span class="font-mono font-bold text-white">${pretty(CL.invite)}</span>` : '🏓 You are invited to join a club. Create an account (or sign in) to accept.';
+    g('btnInviteJoin').textContent = CL.user ? 'Join now' : 'Create account';
+    const m = g('inviteBannerMsg'); m.textContent = CL.joinMsg || ''; m.classList.toggle('hidden', !CL.joinMsg);
+  }
   const playerById = (id) => D().players.find((p) => p.id === id);
 
   function stopAll() { CL.unsubs.forEach((u) => { try { u(); } catch (e) {} }); CL.unsubs = []; clearTimeout(CL.pubTimer); }
@@ -4910,7 +4959,10 @@
     const id = CL.member && CL.member.clubId; if (id) SMx().ls(SMx().KEYP + 'club_' + id, null);
     SMx().ls('sm_view', null);
   }
-  function onView() { renderBanner(); renderCards(); }
+  function onView() {
+    renderBanner(); renderCards();
+    if (D().ro) { try { switchTab('club'); } catch (e) {} }     // a member never lands on the match screen
+  }
 
   // =====================================================================
   //  SCREENS
@@ -4978,7 +5030,7 @@
         <button type="button" id="btnViewMine" class="py-2 rounded-lg border text-xs font-bold ${!inClub ? 'border-orange-500 bg-orange-500/20 text-orange-300' : 'border-slate-700 bg-slate-800 text-slate-300'}">My own data</button></div>
         <button type="button" id="btnLeaveClub" class="w-full py-2 rounded-lg bg-rose-950/50 border border-rose-800/50 text-rose-300 text-xs font-semibold">Leave club</button>`;
     } else if (CL.pending) html += '<p class="text-xs text-slate-300">Join request sent. Waiting for the club owner’s app to approve you.</p><button type="button" id="btnLeaveClub" class="w-full py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold">Cancel request</button>';
-    else html += `<p class="text-xs text-slate-400">Got an invite code from your club? Enter it to see your career and the club rankings on this phone.</p><div class="flex gap-2"><input type="text" id="inputClubCode" maxlength="14" autocomplete="sm-off" value="${esc(CL.joinCode)}" placeholder="XXXXX-XXXXX" class="flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase tracking-wider focus:outline-none focus:border-orange-500"><button type="button" id="btnJoinClub" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold">Join</button></div><p id="clubJoinMsg" class="${CL.joinMsg ? '' : 'hidden '}text-[11px] text-rose-300">${esc(CL.joinMsg)}</p>`;
+    else html += `<p class="text-xs text-slate-400">Got an invite code from your club? Enter it to see your career and the club rankings on this phone.</p><div class="flex gap-2"><input type="text" id="inputClubCode" maxlength="14" autocomplete="sm-off" value="${esc(CL.joinCode || (CL.invite ? pretty(CL.invite) : ''))}" placeholder="XXXXX-XXXXX" class="flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase tracking-wider focus:outline-none focus:border-orange-500"><button type="button" id="btnJoinClub" class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold">Join</button></div><p id="clubJoinMsg" class="${CL.joinMsg ? '' : 'hidden '}text-[11px] text-rose-300">${esc(CL.joinMsg)}</p>`;
     box.innerHTML = html;
   }
 
@@ -4995,11 +5047,12 @@
     const sheet = CL.sheet && CL.invites.find((i) => i.code === CL.sheet.code && !i.used);
     const sp = sheet && playerById(sheet.pid);
     g('cmSheet').innerHTML = sheet ? `<div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-center">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-purple-300">Invite code for ${esc(sp ? sp.name : 'player')}</p>
+        <p class="text-[10px] font-bold uppercase tracking-wider text-purple-300">Invite for ${esc(sp ? sp.name : 'player')}</p>
         <p class="text-2xl font-black font-mono tracking-widest text-white select-all" id="cmCode">${pretty(sheet.code)}</p>
-        <p class="text-[11px] text-slate-400">Single use. ${esc(sp ? sp.name : 'They')} installs the app, creates an account, taps the circle icon, and enters this code.</p>
-        <div class="grid grid-cols-2 gap-2"><button type="button" id="cmCopy" class="py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-200 font-bold">Copy code</button>
-        <a id="cmShare" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Join ${CL.ownerName} on SpinMaster TT 🏓\n1) Install the app\n2) Create an account (circle icon, top right)\n3) Tap "Join a club" and enter this code: ${pretty(sheet.code)}`)}" class="py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">Share on WhatsApp</a></div></div>` : '';
+        <p class="text-[11px] text-slate-400">Send them the invite. They open the link, create an account and tap <b class="text-slate-200">Join now</b>. The code is already filled in. It works once.</p>
+        <div class="grid grid-cols-2 gap-2"><button type="button" id="cmCopyLink" class="py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-200 font-bold">Copy invite</button>
+        <a id="cmShare" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(inviteText(sheet.code))}" class="py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">Share on WhatsApp</a></div>
+        <button type="button" id="cmCopy" class="w-full py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-400 font-semibold">Copy the code only</button></div>` : '';
     g('cmList').innerHTML = D().players.slice().sort((a, b) => a.name.localeCompare(b.name)).map((p) => {
       const mem = CL.members.find((x) => x.pid === p.id), inv = CL.invites.find((i) => i.pid === p.id && !i.used);
       let right;
@@ -5020,11 +5073,20 @@
     b.classList.toggle('opacity-60', !!mem);
   }
 
-  function renderAll() { renderBanner(); renderCards(); renderJoinBox(); renderMembers(); }
+  function renderAll() { renderBanner(); renderInvite(); renderCards(); renderJoinBox(); renderMembers(); }
 
   document.addEventListener('DOMContentLoaded', () => {
+    readInvite(); renderAll();
     document.addEventListener('click', async (e) => {
       const t = e.target;
+      if (t.closest('#btnInviteDismiss')) { clearInvite(); CL.joinMsg = ''; renderAll(); return; }
+      if (t.closest('#btnInviteJoin')) {
+        if (!CL.user) { g('btnAccountLogin').click(); g('authTabSignUp').click(); return; }
+        const btn = g('btnInviteJoin'); btn.disabled = true; CL.joinMsg = '';
+        try { await join(CL.invite); clearInvite(); toast('Request sent'); }
+        catch (er) { const c = String((er && er.code) || ''); CL.joinMsg = c === 'sm/code-not-found' ? 'This invite was already used or cancelled. Ask the club for a new one.' : c === 'sm/own-club' ? 'This is your own club.' : SMCloud.friendly(er); }
+        btn.disabled = false; renderAll(); return;
+      }
       if (t.closest('#btnOpenMembers')) { openMembers(); return; }
       if (t.closest('#btnOpenMine')) { if (CL.member) openPlayerProfile(CL.member.pid); return; }
       if (t.closest('#btnMakeClub')) { await makeClub(g('inputClubName').value); return; }
@@ -5033,6 +5095,7 @@
       const rv = t.closest('[data-revoke]'); if (rv) { await revoke(rv.dataset.revoke); return; }
       const rm = t.closest('[data-rm]'); if (rm) { SMx().confirmDialog({ title: 'Remove this player’s access?', text: 'Their profile and matches stay in the club. They just stop seeing it on their phone, and you can invite them again.', ok: 'Remove access', danger: true, onOk: () => removeMember(rm.dataset.rm) }); return; }
       const rr = t.closest('[data-reqreject]'); if (rr) { await rejectReq(rr.dataset.reqreject); return; }
+      if (t.closest('#cmCopyLink')) { try { await navigator.clipboard.writeText(inviteText(CL.sheet.code)); toast('Invite copied. Paste it into any chat'); } catch (er) { toast('Could not copy. Use Share on WhatsApp'); } return; }
       if (t.closest('#cmCopy')) { const c = g('cmCode').textContent; try { await navigator.clipboard.writeText(c); toast('Code copied'); } catch (er) { toast('Select the code and copy it'); } return; }
       if (t.closest('#btnCloseMembers')) { g('modalClubMembers').classList.add('hidden'); return; }
       if (t.closest('#btnInviteMember')) { const b = g('btnInviteMember'); if (b.dataset.pid && !b.disabled) { g('modalPlayerProfile').classList.add('hidden'); await invite(b.dataset.pid); } return; }
@@ -5042,7 +5105,7 @@
       if (t.closest('#btnLeaveClub')) { SMx().confirmDialog({ title: CL.member ? 'Leave this club?' : 'Cancel the request?', text: CL.member ? 'You stop seeing the club on this phone. Your own account and data are not affected. The owner can invite you again.' : 'Your join request is withdrawn.', ok: CL.member ? 'Leave club' : 'Cancel request', danger: !!CL.member, onOk: leaveClub }); return; }
       if (t.closest('#btnJoinClub')) {
         const btn = g('btnJoinClub'); CL.joinCode = g('inputClubCode').value; CL.joinMsg = ''; btn.disabled = true;
-        try { await join(CL.joinCode); CL.joinCode = ''; toast('Request sent'); }
+        try { await join(CL.joinCode); CL.joinCode = ''; clearInvite(); toast('Request sent'); }
         catch (er) {
           const c = String((er && er.code) || '');
           CL.joinMsg = c === 'sm/code-short' ? 'Enter the full code (10 letters and numbers).' : c === 'sm/code-not-found' ? 'This code was not found. It may have been used already or revoked. Ask the club for a new one.' : c === 'sm/own-club' ? 'This is your own club.' : SMCloud.friendly(er);
@@ -5063,7 +5126,47 @@
     return _st.call(this, tab);
   };
 
-  window.ClubLink = { onSignedIn, onSignedOut, onView, wipe, publishSoon, profileExtras, renderCards, myPid: () => (CL.member ? CL.member.pid : ''), state: CL, norm, genCode };
+  window.ClubLink = { onSignedIn, onSignedOut, onView, wipe, publishSoon, profileExtras, renderCards, myPid: () => (CL.member ? CL.member.pid : ''), state: CL, norm, genCode, inviteText, inviteLink, webAppUrl, apkUrl };
+})();
+
+  </script>
+
+  <!-- INSTALLABLE WEB APP: install button + offline support -->
+  <script>
+(function () {
+  'use strict';
+  const g = (id) => document.getElementById(id);
+  const native = !!(window.Capacitor && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform());
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  let deferred = null;
+
+  function paint() {
+    const box = g('installBox'); if (!box) return;
+    if (native || standalone()) { box.classList.add('hidden'); return; }
+    if (deferred) {
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="flex items-center gap-3"><span class="text-xl">📲</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">Install SpinMaster TT</p><p class="text-[11px] text-slate-400">Opens like an app, works offline.</p></div><button type="button" id="btnInstallApp" class="shrink-0 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold">Install</button></div>';
+    } else if (ios) {
+      box.classList.remove('hidden');
+      box.innerHTML = '<p class="text-xs text-slate-300"><b class="text-white">📲 Add to your home screen:</b> tap the Share button in Safari, then <b>Add to Home Screen</b>.</p>';
+    } else box.classList.add('hidden');
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; paint(); });
+  window.addEventListener('appinstalled', () => { deferred = null; paint(); try { showToast('SpinMaster TT installed'); } catch (e) {} });
+  document.addEventListener('click', async (e) => {
+    if (!e.target.closest('#btnInstallApp') || !deferred) return;
+    deferred.prompt();
+    try { await deferred.userChoice; } catch (er) {}
+    deferred = null; paint();
+  });
+  document.addEventListener('DOMContentLoaded', paint);
+
+  // offline support for the web version (the Android app already has its files inside it)
+  if (!native && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').catch(() => {}); });
+  }
 })();
 
   </script>
